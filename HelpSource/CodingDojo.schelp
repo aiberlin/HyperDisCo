@@ -1,0 +1,121 @@
+TITLE:: CodingDojo
+summary:: Shared coding practice
+categories::Education, LiveCoding
+related:: Classes/OSCRouterClient, Classes/SyncText
+
+DESCRIPTION::
+See link::https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.568.2621::
+
+A Coding Dojo is a meeting where a group of program-mers gets together to learn, practice, and share experiences. This report describes the authors ’ experience of creating and running an active Coding Dojo in São Paulo, Brazil, sharing the lessons learned from the experience. The role of the Dojo in the learning process is discussed, showing how it creates an environment for fostering and sharing Agile practices such as Test-Driven Development, Refactoring and Pair Programming, among others.
+
+Designed and implemented by Bruno Gola.
+
+First code examples:
+
+code::
+// have 3 laptops ready, use a different name on each one:
+~myDojoID = \ada;
+~myDojoID = \coco;
+~myDojoID = \eve;
+
+
+// close old dojo docs if needed
+Document.allDocuments.do { |doc|
+	if (doc.title.contains("CodingDojoSession")) { doc.close }
+};
+
+// make a new CodingDojo
+~dojo = CodingDojo(~myDojoID, ~myDojoID);
+
+// wait for all participants to log in ...
+// should see a red window bottom left that says 5min
+// see the connected participants:
+~dojo.oscrouter.peers.cs;
+
+// when all participants are ready, one person starts the session:
+~dojo.startSession(~dojo.oscrouter.peers);
+
+// the names shown are:
+// pilot - can edit, lead writer
+// copilot - can edit, assists, discusses
+// next copilot - becomes copilot in next round
+
+// every 5 minutes, the roles rotate by one:
+//  pilot <- copilot
+// copilot <- nextCopilot
+// nextCopilot - next in order
+
+~dojo.rotate;
+
+::
+
+CLASSMETHODS::
+
+METHOD:: new
+argument:: username
+argument:: password
+argument:: serveraddress
+argument:: serverport
+
+
+INSTANCEMETHODS::
+
+METHOD:: disableCodeSending
+
+METHOD:: startNewTurn
+argument:: pilot
+argument:: copilot
+argument:: next
+
+METHOD:: startTimer
+
+METHOD:: syncText
+
+METHOD:: startSession
+argument:: participants_order
+
+METHOD:: win
+
+METHOD:: setupUserView
+
+METHOD:: uv
+
+METHOD:: nextCopilot
+
+METHOD:: copilot
+
+METHOD:: removeOSCFuncs
+
+METHOD:: init
+
+METHOD:: enableCodeSending
+
+METHOD:: myStatus
+
+METHOD:: updateTurn
+
+METHOD:: oscrouter
+
+METHOD:: addOSCFuncs
+
+METHOD:: timer
+
+METHOD:: order
+
+METHOD:: newTurn
+argument:: newPilot
+argument:: newCopilot
+argument:: newNext
+
+METHOD:: resetTimer
+
+METHOD:: rotate
+
+METHOD:: pilot
+
+
+EXAMPLES::
+
+code::
+_some_example_code_
+::

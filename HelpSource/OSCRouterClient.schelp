@@ -1,0 +1,157 @@
+TITLE:: OSCRouterClient
+summary:: Connecting sclang across the internet
+categories:: Networking
+related:: Classes/SyncText, Reference/OpenSoundControl
+
+DESCRIPTION::
+OSCRouterClient is an interface to connect by TCP to an instance of tcposcrouter by Bruno Gola, see link::https://github.com/bgola/tcposcrouter::.
+
+Like OSCgroups, it forwards incoming messages to all connected clients except the sender.
+It also sends a current userlist whenever logins change.
+
+running on a webserver, e.g. on "bgo.la"
+
+
+First code examples:
+code::
+(
+// make a client that joins the default group on bgola's server:
+~ex1 = OSCRouterClient("bgo.la", \ex1, \ex1);
+//// add a responder before joining
+~ex1.addResp(\test, { |msg| [~ex1.userName, msg].postcs });
+~ex1.join;
+)
+// shows up in the current groups now:
+OSCRouterClient.groups;
+
+//// add a second client with a different name:
+~ex2  = OSCRouterClient("bgo.la", \ex2a);
+// add responder after joining
+~ex2.join({ ~ex2.addResp(\test, { |msg| [~ex2.userName, msg].postcs }) });
+
+~ex1.sendMsg(\test, "yoohoo!");
+~ex2.sendMsg(\test, "who yoo?");
+
+// update the responders:
+~ex1.addResp(\test, { |msg| "~ex1 got: %\n".postf(msg) });
+~ex2.addResp(\test, { |msg| "~ex2 got: %\n".postf(msg) });
+
+~ex1.sendMsg(\test, "yoohoo!");
+~ex2.sendMsg(\test, "who yoo?");
+
+// private messages:
+~ex1.addPrivateResp(\whispa, { |name, msg| "~ex1 pssss from %: %\n".postf(name, msg.drop(1)) });
+~ex2.addPrivateResp(\whispa, { |name, msg| "~ex2 pssss from %: %\n".postf(name, msg.drop(1)) });
+
+~ex1.sendPrivate(~ex1.userName, \whispa, "whisper to myself???");
+~ex1.sendPrivate(~ex2.userName, \whispa, "hey ex2, dont tell anyone, but...");
+~ex2.sendPrivate(~ex1.userName, \whispa, "wow ex1, I heard that this is not just a rumor ...");
+
+::
+
+CLASSMETHODS::
+
+private:: groupNamesByPort, initClass, addGroup, cmdPeriod
+
+METHOD:: exists
+Check whether a client with these args already exists.
+This is used to prevent multiple identical clients.
+argument:: serverAddr
+argument:: userName
+argument:: groupName
+
+METHOD:: new
+create a new client with:
+argument:: serverAddr
+the address of the server where tcposcrouter runs
+argument:: userName
+the userName with which to login
+argument:: userPassword
+userPassword for that userName
+argument:: onJoined
+function to do when joined
+argument:: groupName
+name of the group to join. default is 'oscrouter'
+argument:: groupPassword
+password for the group to join. default is 'oscrouter'
+argument:: serverport
+optional: on which port to log into the server
+
+METHOD:: groups
+Dictionary of known groups
+
+INSTANCEMETHODS::
+
+METHOD:: serverAddr, userName, userPassword, groupName, groupPassword, serverport
+instance variables set on creation
+
+METHOD:: onJoined
+action to run after join succeeded
+
+METHOD:: join
+join the group on the server
+argument:: onSuccess
+function to run when joining succeeded
+argument:: onFailure
+... or failed
+
+METHOD:: close
+close connection to the server
+
+METHOD:: isConnected
+test whether netAddr is currently connected
+
+METHOD:: hasJoined
+test whether client is currently joined group
+
+METHOD:: peers
+names of all peers currently in the group
+
+METHOD:: sendMsg
+send a message to the group
+
+METHOD:: sendMsgArray
+expand an array of args to a message and send to the group
+argument:: symbol
+message name
+argument:: array
+arguments
+
+METHOD:: addResp
+add a responder func by id/message name
+METHOD:: removeResp
+remove a responder func by id
+
+METHOD:: responderFuncs
+all current responderFuncs
+METHOD:: responders
+all currently active OSCFuncs
+
+METHOD:: sendMsgToUser
+send a private message to a user in the group
+argument:: name
+name of the user to send to
+argument:: args
+message name and args to send
+
+METHOD:: addPrivateResp
+add a private responder func by id/message name
+METHOD:: removePrivateResp
+remove a private responder func by id/message name
+
+METHOD:: privateResponderFuncs
+dict of the private responder funcs
+
+METHOD:: netAddr
+the netAddr of the server
+
+METHOD:: tcpRecvPort
+the tcp receive port of the server.
+
+private:: init, prMakeResp, confirmJoin, privateMsgReceiver, peerWatcher, enablePing, tryToReconnect, pid
+
+EXAMPLES::
+
+code::
+_some_example_code_
+::

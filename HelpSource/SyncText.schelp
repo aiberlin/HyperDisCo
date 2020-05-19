@@ -1,0 +1,173 @@
+TITLE:: SyncText
+summary:: sync text across computers
+categories:: Undocumented classes
+related:: Classes/OSCRouterClient, Guides/OSC_communication
+DESCRIPTION::
+SyncText keeps a text string synchronized across computers
+via the internet using OSCRouterClient.
+This is useful for shared coding practice, for learning,
+performances, and other uses.
+
+First code examples:
+code::
+// close old synctext docs if needed
+Document.allDocuments.do { |doc|
+	if (doc.title.contains("synctext_help")) { doc.close }
+};
+
+// make two OSCRouterClients that connect a shared doc on two computers
+// ON COMPUTER 1:
+
+try { ~comp1.close };
+~comp1 = OSCRouterClient("bgo.la", \comp1, \comp1pw).join({
+	~tx1 = SyncText('synctext_help', ~comp1.userName, ~comp1);
+});
+~tx1.currText;
+~tx1.showDoc;
+
+// ON COMPUTER 2:
+try { ~comp2.close };
+~comp2 = OSCRouterClient("bgo.la", \comp2, \comp2pw).join({
+	~tx2 = SyncText('synctext_help', ~comp2.userName, ~comp2);
+});
+
+~tx2.currText;
+~tx2.showDoc;
+
+/// then try typing in synxtext_help document on comp1,
+// and see if the doc on comp2 updates to the same text;
+// then check vice versa!
+
+
+// contents of local synctext ~tx1:
+~tx1.dump;
+~tx1.currText.cs;
+~tx1.showDoc;
+~tx1.closeDoc;
+
+/// test access by name:
+SyncText.all;
+// lookup of instances works both with bare textID and textID_name:
+~tx1 === SyncText('synctext_help')
+~tx1 === SyncText('synctext_help', 'comp1')
+
+///// SyncText can be incomplete without textID and relayAddr,
+///// but currently no way to update them
+SyncText('testNoID');
+SyncText('testID', 'user');
+
+/////////// HOW to fake two instances on same computer???
+//////////// would be useful for testing and dev ...
+///// dont have a good idea ATM (adc)
+
+~comp1B  = OSCRouterClient("bgo.la", \comp1B).join;
+~tx2 = SyncText('synctext_help2', ~comp1B.userName, ~comp1B);
+~tx2 === ~tx1;
+~tx2.dump;
+
+SyncText.all.put('synctext_help2', SyncText('synctext_help'));
+
+::
+
+CLASSMETHODS::
+
+private:: initClass
+
+METHOD:: new
+make a new SyncText with
+argument:: textID
+an ID for the text (same on different computers)
+argument:: userID
+an ID for the local user (different on each computers)
+argument:: relayAddr
+An OSCRouterClient or similar to connect the SyncTexts.
+
+METHOD:: all
+all known syncTexts
+
+METHOD:: defaultText
+the text that a new syncText gets when no text is found online.
+
+INSTANCEMETHODS::
+
+
+METHOD:: textID
+the id  for the synced text
+
+METHOD:: userID
+the id  for the local user/computer
+
+METHOD:: relayAddr
+the relay to use for sync messages
+
+METHOD:: currText
+the current synced text
+
+METHOD:: textDoc
+the document that shows and edits currText
+
+METHOD:: showDoc
+find or make and show a document for currText
+
+METHOD:: enableSend, disableSend
+enable and disable sync-sending on currText
+METHOD:: sendEnabled
+flag whether currently sync-sending or not
+
+METHOD:: enableRecv, disableRecv
+enable and disable text sync from outside
+METHOD:: recvEnabled
+flag whether currently text-syncing from outside
+
+METHOD:: lock, unlock
+lock and unlock editing of currText on textDoc
+METHOD:: lock
+flag whether editing currently locked
+
+METHOD:: sendEnabled
+flag whether currently sync-sending or not
+
+subsection::mostly for internal use (and debugging)
+
+private:: init, makeOSCFuncs, makeKeyDownFunc
+private:: printOn, storeArgs
+private:: recvFunc, requestFunc, keyDownSyncFunc
+
+METHOD:: incomingVersions
+different versions of the synced text as last sent from synced users.
+
+METHOD:: lastReceived
+the last received version of the synced text
+
+METHOD:: lastSent
+the last sent version of the synced text
+
+METHOD:: docLocalID
+a local ID merging textID and userID.
+
+METHOD:: requestText
+ask other nodes for the current text
+usually not needed to do explicitly.
+
+METHOD:: setCurr
+set currText by hand.
+usually only needed internally.
+METHOD:: setDocText
+set text in textDoc by hand
+usually never needed internally.
+
+METHOD:: sendSyncText
+send text to sync to otherName.
+usually never needed internally, happens when requested.
+argument:: otherName
+
+METHOD:: synced
+whether the text is currently synced or not.
+this is false when SyncText is made, and true
+after synced to incoming text or after timeout.
+
+EXAMPLES::
+
+code::
+_some_example_code_
+::

@@ -1,0 +1,15 @@
+title:: HyperDisCo
+summary:: A modular library for internet-networked music systems.
+
+categories:: Libraries/NetworkMusic
+related:: OSCRouterClient, SyncText, CodingDojo
+
+HyperDisCo provides:
+LIST::
+##link::OSCRouterClient::, an interface for tcposcrouter by Bruno Gola, see link::https://github.com/bgola/tcposcrouter::.
+##link::SyncText:: for syncing code/text documents for teaching, live coding and performance
+##link::CodingDojo:: for holding CodingDojo sessions via internet
+## more to follow...
+::
+
+see also code:: Quark("Utopia") ::
