@@ -109,6 +109,10 @@ SyncText {
 				};
 			};
 		}, \syncTextRequest, recvPort: relayAddr.tcpRecvPort);
+
+		requestFunc.permanent_(true);
+		recvFunc.permanent_(true);
+
 	}
 
 	sendSyncText { |otherName|
