@@ -154,20 +154,17 @@ CodingDojo {
 
 	}
 
-	startSession {
-		arg participants_order;
-		order = participants_order;
+	startSession { arg participants_order;
+		order = participants_order ? oscrouter.peers;
 		this.startNewTurn(order.wrapAt(0), order.wrapAt(1), order.wrapAt(2));
 	}
 
-	startNewTurn {
-		arg pilot, copilot, next;
+	startNewTurn { arg pilot, copilot, next;
 		oscrouter.sendMsg('/codingdojo/new_turn', pilot.asSymbol, copilot.asSymbol, next.asSymbol);
 		this.newTurn(pilot, copilot, next);
 	}
 
-	newTurn {
-		arg newPilot, newCopilot, newNext;
+	newTurn { arg newPilot, newCopilot, newNext;
 		pilot = newPilot;
 		copilot = newCopilot;
 		nextCopilot = newNext;
