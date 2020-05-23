@@ -78,7 +78,8 @@ OSCRouterClient {
 		randomId = 999999.rand;
 
 		if (this.isConnected) {
-			"OSCRouterClient is already connected! Try to call .close first.".postln;
+			// "OSCRouterClient: already connected. To reconnect, call .close first.".postln;
+			onSuccess.value;
 			^this
 		};
 
