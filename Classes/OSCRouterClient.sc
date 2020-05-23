@@ -1,6 +1,3 @@
-/////// experimental version adc,
-/////// with all proposals implemented
-//// to see how they feel
 
 OSCRouterClient {
 
