@@ -4,6 +4,7 @@
 
 OSCRouterClient {
 
+	classvar <all;
 	classvar <groups, <groupNamesByPort;
 
 	var <serverAddr, <userName, <userPassword, <onJoined, <groupName, <groupPassword, <serverport;
@@ -14,6 +15,7 @@ OSCRouterClient {
 	*initClass {
 		groups = ();
 		groupNamesByPort = ();
+		all = Set[];
 	}
 
 	*addGroup { |name, recvPort, serverAddr|
@@ -25,37 +27,38 @@ OSCRouterClient {
 		};
 	}
 
-	// works, and returns nil for now.
-	// keep all clients in .all for hadning them back here?
-	*new { arg serverAddr, userName, userPassword, onJoined, groupName = 'oscrouter', groupPassword = 'oscrouter', serverport = 55555;
-		if (this.exists(serverAddr, userName, groupName)) {
-			"*** %:new - client already exists with addr %, username %, groupname %!\n."
-			.postf(serverAddr, userName, groupName);
-			^nil
+	// if there is already a client with these specs,
+	// use that to avoid doubled login failure and confusion.
+	*new { arg serverAddr, userName, userPassword, onJoined,
+		groupName = 'oscrouter', groupPassword = 'oscrouter', serverport = 55555;
+
+		var found = this.findBy(userName, groupName, serverAddr, serverport);
+
+		case { found.size > 1 } {
+			"*** OSCRouterClient:new - multiple matching clients found, please be more specific!".postln;
+			found.do(_.dump);
+			^found
+		} { found.size == 1 } {
+			"OSCRouterClient:new - using existing client with these params.".postln;
+			^found.unbubble
 		};
+		///// none found, so create it now:
 		^super.newCopyArgs(serverAddr, userName, userPassword, onJoined, groupName, groupPassword, serverport).init;
 	}
 
+	match { |userName, groupName, serverAddr, serverport|
+		userName !? { if (this.userName != userName) { ^false } };
+		groupName !? { if (this.groupName != groupName) { ^false } };
+		serverAddr !? { if (this.serverAddr != serverAddr) { ^false } };
+		serverport !? { if (this.serverport != serverport) { ^false } };
+		^true
+	}
+
 	///// not finished yet
-	*exists { |serverAddr, userName,  groupName|
-		var group = groups[groupName];
-		var peers, addr ;
-		if (group.isNil) {
-		//	"no group".postln;
-			^false
-		};
-
-		if ((group[\serverAddr] == serverAddr).not) {
-		//	"wrong addr: group has %, method had % \n".postf(group[\serverAddr], serverAddr);
-			^false
-		};
-		peers = group[\peers];
-		if (peers.isNil) {
-		//	"no peers".postln;
-			^false
-		};
-
-		^peers.includes(userName)
+	*findBy {  |userName, groupName, serverAddr, serverport|
+		^all.select { |router|
+			router.match(userName, groupName, serverAddr, serverport)
+		}.asArray
 	}
 
 	init {
@@ -65,6 +68,7 @@ OSCRouterClient {
 		peers = Set();
 		hasJoined = false;
 		ShutDown.add({this.close});
+		all.add(this);
 	}
 
 	isConnected { ^netAddr.notNil and: { netAddr.isConnected } }
