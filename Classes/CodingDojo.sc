@@ -1,10 +1,11 @@
 CodingDojo {
-	var username, password, serveraddress, serverport;
-	var <oscrouter, <syncText, <>turnTime = 300, <remainTime, timerTask, <pilot;
-	var <copilot, <nextCopilot, <myStatus, <order;
+	var <username, <password, <serveraddress, <serverport;
+	var <oscrouter, <syncText;
+	var <>turnTime = 300, <remainTime, <timer;
+	var <pilot, <copilot, <nextCopilot, <myStatus, <order;
 	var <win, <uv;
 
-	*new {arg username, password, serveraddress = "bgo.la", serverport = 55555;
+	*new { arg username, password, serveraddress = "bgo.la", serverport = 55555;
 		^super.newCopyArgs(username.asSymbol, password.asSymbol, serveraddress.asString, serverport).init;
 	}
 
@@ -15,12 +16,15 @@ CodingDojo {
 				syncText.showDoc;
 
 				remainTime = turnTime; // Defaults to 5 minutes
-				timerTask = Task({
-					{ remainTime > 0 }.while {
+				timer = SkipJack({
+					if (remainTime > 0) {
 						remainTime = remainTime - 1;
-						1.wait;
+					} {
+						timer.stop
 					};
-				});
+				},
+				1,
+				).stop;
 
 				this.addOSCFuncs;
 				this.enableCodeSending;
