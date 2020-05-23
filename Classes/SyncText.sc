@@ -1,11 +1,18 @@
 SyncText {
 	classvar <defaultText = "/* sync text via network */\n";
 	classvar <all;
+	classvar <logDir;
 
 	var <textID, <relayAddr, <userID, <docLocalID;
 	var <currText, <lastSent, <lastReceived, <incomingVersions;
 	var <recvFunc, <requestFunc;
 	var <textDoc, <>synced = false, <keyDownSyncFunc, <locked = false;
+
+	*initClass {
+		all = ();
+		logDir = Platform.userAppSupportDir +/+ "SyncText_logs/";
+		if (logDir.pathMatch.isEmpty) { File.mkdir(logDir) };
+	}
 
 	*new { |textID = \syncText, userID, relayAddr|
 		var id = (userID ?? { "whoami".unixCmdGetStdOut.drop(-1) }).asSymbol;
@@ -27,8 +34,6 @@ SyncText {
 
 	storeArgs { ^[textID] }
 	printOn { |stream| ^this.storeOn(stream) }
-
-	*initClass { all = () }
 
 	init {
 		incomingVersions = ();
