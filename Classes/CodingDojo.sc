@@ -10,21 +10,11 @@ CodingDojo {
 	}
 
 	init {
+		this.initTimer;
 		oscrouter = OSCRouterClient(serveraddress, username, password,
 			serverport: serverport, onJoined: {|oscrouter|
 				syncText = SyncText('CodingDojoSession', username, oscrouter);
 				syncText.showDoc;
-
-				remainTime = turnTime; // Defaults to 5 minutes
-				timer = SkipJack({
-					if (remainTime > 0) {
-						remainTime = remainTime - 1;
-					} {
-						timer.stop
-					};
-				},
-				1,
-				).stop;
 
 				this.addOSCFuncs;
 				this.enableCodeSending;
@@ -36,6 +26,14 @@ CodingDojo {
 		});
 		myStatus = \audience;
 		oscrouter.join;
+	}
+
+	initTimer {
+		remainTime = turnTime; // Defaults to 5 minutes
+		timer = SkipJack({
+			remainTime = remainTime - 1;
+		},
+		1, { remainTime <= 0 }, 'CodingDojo').stop;
 	}
 
 	setupUserView {
@@ -137,7 +135,16 @@ CodingDojo {
 	}
 
 	startTimer {
-		timerTask.play(doReset: true);
+		timer.play
+	}
+
+	stopTimer {
+		timer.stop
+	}
+
+	resetTimer {
+		remainTime = turnTime;
+		this.startTimer;
 	}
 
 	rotate {
@@ -166,12 +173,6 @@ CodingDojo {
 		nextCopilot = newNext;
 		this.updateTurn;
 		this.resetTimer;
-	}
-
-	resetTimer {
-		remainTime = 5*60;
-		this.startTimer;
-
 	}
 
 	updateTurn {
