@@ -3,13 +3,13 @@
 //// to see how they feel
 
 OSCRouterClient {
-	classvar <groups, <groupNamesByPort;
-	var <serverAddr, <userName, <userPassword, <onJoined, <groupName, <groupPassword, <serverport;
 
-	var <tcpRecvPort, <responders, <responderFuncs, <privateResponderFuncs,
-	<pid, <netAddr, <id,
-	<peers, <peerWatcher, <privateMsgReceiver,
-	<hasJoined;
+	classvar <groups, <groupNamesByPort;
+
+	var <serverAddr, <userName, <userPassword, <onJoined, <groupName, <groupPassword, <serverport;
+	var <tcpRecvPort, <netAddr;
+	var <responders, <responderFuncs, <privateResponderFuncs, <privateMsgReceiver;
+	var <peerWatcher, <peers, <hasJoined = false;
 
 	*initClass {
 		groups = ();
