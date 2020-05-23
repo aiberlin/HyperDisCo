@@ -11,21 +11,20 @@ CodingDojo {
 
 	init {
 		this.initTimer;
-		oscrouter = OSCRouterClient(serveraddress, username, password,
-			serverport: serverport, onJoined: {|oscrouter|
-				syncText = SyncText('CodingDojoSession', username, oscrouter);
-				syncText.showDoc;
+		this.initRoles;
 
-				this.addOSCFuncs;
-				this.enableCodeSending;
-				pilot = '';
-				copilot = '';
-				nextCopilot = '';
-				order = [];
-				AppClock.sched(0, {this.setupUserView});
-		});
-		myStatus = \audience;
+		oscrouter = OSCRouterClient(serveraddress, username, password,
+			serverport: serverport, onJoined: { this.initOnJoined });
 		oscrouter.join;
+	}
+
+	initRoles {
+		pilot = '';
+		copilot = '';
+		nextCopilot = '';
+		order = [''];
+		AppClock.sched(0, {this.setupUserView});
+		myStatus = \audience;
 	}
 
 	initTimer {
@@ -36,7 +35,15 @@ CodingDojo {
 		1, { remainTime <= 0 }, 'CodingDojo').stop;
 	}
 
+	initOnJoined {
+		syncText = SyncText('CodingDojoSession', username, oscrouter);
+		syncText.showDoc;
+		this.addOSCFuncs;
+		this.enableCodeSending;
+	}
+
 	setupUserView {
+		if (win.notNil) { try { win.close } };
 		win = Window.new("CodingDojo_" ++ username, Rect(0,0, 200, 150), false, false);
 		uv = UserView.new(win, Rect(0,0,200,150));
 		win.alwaysOnTop = true;
@@ -190,6 +197,13 @@ CodingDojo {
 			syncText.disableSend;
 			syncText.lock;
 		}
+	}
+
+	leave {
+		this.stopTimer;
+		oscrouter.close;
+		syncText.closeDoc;
+		try { win.close };
 	}
 
 }
