@@ -183,7 +183,7 @@ SyncText {
 	showDoc { |force = false|
 		var doctext = currText ??  "// waiting for sync...";
 		if (force) { textDoc = nil };
-		// textDoc !? { textDoc.close };
+
 
 		if (synced.not) {  };
 
@@ -199,7 +199,33 @@ SyncText {
 			textDoc.keyDownAction = keyDownSyncFunc;
 
 		};
-		AppClock.sched(0.1, { textDoc.front });
+		AppClock.sched(0.1, {
+			textDoc.front;
+			this.saveAndCloseOldDocs;
+		});
+	}
+
+	*writeLog { |doc, id, ext = ".scd"|
+		var filename = Date.getDate.stamp;
+		var doctitle = doc.title;
+		if (id.notNil) { filename = filename ++ "_%_".format(id) };
+		if (doctitle.endsWith(ext).not) { doctitle = doctitle ++ ext };
+		filename = filename ++ doctitle;
+		File.use(logDir +/+ filename, "w", { |f| f.write(doc.text).close });
+	}
+
+	saveAndCloseOldDocs {
+		var oldDocs = Document.allDocuments.select { |doc|
+			doc != textDoc and: { doc.title.contains(textID.asString) }
+		};
+		oldDocs.do { |doc, i|
+			var id;
+			if (oldDocs.size > 1) { id = i + 1 };
+			try {
+				SyncText.writeLog(doc, id);
+				doc.close
+			}
+		}
 	}
 
 	closeDoc {
