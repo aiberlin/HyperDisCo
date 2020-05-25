@@ -13,9 +13,8 @@ CodingDojo {
 		this.initTimer;
 		this.initRoles;
 
-		oscrouter = OSCRouterClient(serveraddress, username, password,
-			serverport: serverport, onJoined: { this.initOnJoined });
-		oscrouter.join;
+		oscrouter = OSCRouterClient(serveraddress, username, password, serverport: serverport);
+		oscrouter.join({ this.initOnJoined });
 	}
 
 	initRoles {
