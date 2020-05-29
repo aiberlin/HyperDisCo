@@ -1,19 +1,21 @@
 CodingDojo {
-	var <username, <password, <serveraddress, <serverport;
+	var <username, <password, <serveraddress, <serverport, <groupName, <groupPassword;
 	var <oscrouter, <syncText;
 	var <>turnTime = 300, <remainTime, <timer;
 	var <pilot, <copilot, <nextCopilot, <myStatus, <order;
 	var <win, <uv;
 
-	*new { arg username, password, serveraddress = "bgo.la", serverport = 55555;
-		^super.newCopyArgs(username.asSymbol, password.asSymbol, serveraddress.asString, serverport).init;
+	*new { arg username, password, serveraddress = "bgo.la", serverport = 55555,
+		groupName, groupPassword;
+		^super.newCopyArgs(username.asSymbol, password.asSymbol, serveraddress.asString, serverport, groupName, groupPassword).init;
 	}
 
 	init {
 		this.initTimer;
 		this.initRoles;
 
-		oscrouter = OSCRouterClient(serveraddress, username, password, serverport: serverport);
+		oscrouter = OSCRouterClient(serveraddress, username, password,
+			groupName: groupName, groupPassword: groupPassword, serverport: serverport);
 		oscrouter.join({ this.initOnJoined });
 	}
 
@@ -39,6 +41,8 @@ CodingDojo {
 		syncText.showDoc;
 		this.addOSCFuncs;
 		this.enableCodeSending;
+		groupName = oscrouter.groupName;
+		groupPassword = oscrouter.groupPassword
 	}
 
 	setupUserView {

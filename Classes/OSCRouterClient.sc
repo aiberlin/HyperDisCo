@@ -27,9 +27,12 @@ OSCRouterClient {
 	// if there is already a client with these specs,
 	// use that to avoid doubled login failure and confusion.
 	*new { arg serverAddr, userName, userPassword, onJoined,
-		groupName = 'oscrouter', groupPassword = 'oscrouter', serverport = 55555;
+		groupName, groupPassword, serverport = 55555;
 
-		var found = this.findBy(userName, groupName, serverAddr, serverport);
+		var found;
+		groupName = groupName ? 'oscrouter';
+		groupPassword = groupPassword ? 'oscrouter';
+		found = this.findBy(userName, groupName, serverAddr, serverport);
 
 		case { found.size > 1 } {
 			"*** OSCRouterClient:new - multiple matching clients found, please be more specific!".postln;
