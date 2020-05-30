@@ -1,5 +1,5 @@
 TITLE:: CodingDojo
-summary:: Shared coding practice
+summary:: Shared coding practice online
 categories::Education, LiveCoding, PairProgramming
 related:: Classes/OSCRouterClient, Classes/SyncText
 
@@ -99,7 +99,7 @@ start and reset the timer.
 subsection::Internal Methods
 These usually need not be used  by hand.
 
-METHOD:: setupUserView
+METHOD:: showTimer
 
 METHOD:: enableCodeSending
 METHOD:: disableCodeSending
