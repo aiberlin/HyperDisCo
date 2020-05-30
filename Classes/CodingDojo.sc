@@ -1,14 +1,18 @@
 CodingDojo {
-	var <username, <userPassword, <serveraddress, <serverport;
+	var <userName, <userPassword, <serverAddr, <serverPort;
+
 	var <oscrouter, <syncText;
 	var <>turnTime = 300, <remainTime, <timer;
-	var <pilot, <copilot, <nextCopilot, <myStatus, <order;
+	var <order, <pilot, <copilot, <nextCopilot, <myStatus;
 	var <win, <uv;
 
-	*new { arg username, userPassword, serveraddress = "bgo.la", serverport = 55555,
-		groupName = \codingDojo, groupPassword = \codingDojo;
-		^super.newCopyArgs(username.asSymbol, userPassword.asSymbol,
-			serveraddress.asString, serverport)
+	*new { arg userName, groupName = \codingDojo, serverAddr = "bgo.la",
+		userPassword, groupPassword = \codingDojo, serverPort = 55555;
+
+		^super.newCopyArgs(
+			userName.asSymbol, userPassword.asSymbol,
+			serverAddr.asString, serverPort
+		)
 		.init(groupName.asSymbol, groupPassword.asSymbol);
 	}
 
@@ -16,10 +20,12 @@ CodingDojo {
 		this.initTimer;
 		this.initRoles;
 
-		oscrouter = OSCRouterClient(serveraddress, username, groupPassword,
-			groupName, groupPassword, serverport: serverport);
-		oscrouter.join({ this.initOnJoined });
+		oscrouter = OSCRouterClient(userName, groupName, serverAddr,
+			userPassword, groupPassword, serverPort);
+		this.join;
 	}
+
+	join { oscrouter.join({ this.initOnJoined }); }
 
 	groupName { ^oscrouter.groupName }
 
@@ -30,7 +36,6 @@ CodingDojo {
 		copilot = '';
 		nextCopilot = '';
 		order = [''];
-		AppClock.sched(0, {this.setupUserView});
 		myStatus = \audience;
 	}
 
@@ -43,18 +48,23 @@ CodingDojo {
 	}
 
 	initOnJoined {
-		syncText = SyncText('CodingDojoSession', username, oscrouter);
-		syncText.showDoc;
-		this.addOSCFuncs;
-		this.enableCodeSending;
+		defer {
+			syncText = SyncText('CodingDojoSession', userName, oscrouter);
+			syncText.showDoc(true);
+			this.addOSCFuncs;
+			this.enableCodeSending;
+			this.showTimer;
+		}
 	}
 
-	setupUserView {
+	showTimer {
 		if (win.notNil) { try { win.close } };
-		win = Window.new("CodingDojo_" ++ username, Rect(0,0, 200, 150), false, false);
-		uv = UserView.new(win, Rect(0,0,200,150));
+		win = Window.new("CodingDojo_" ++ userName, Rect(0,0, 200, 150), false, false);
+		win.front;
 		win.alwaysOnTop = true;
 		win.alpha_(0.7);
+
+		uv = UserView.new(win, Rect(0,0,200,150));
 		uv.background = Color.red;
 		uv.animate = true;
 		uv.drawFunc = { |uv|
@@ -79,8 +89,6 @@ CodingDojo {
 				timerColor
 			);
 		};
-		win.front;
-		uv.front;
 	}
 
 	disableCodeSending {
@@ -91,11 +99,11 @@ CodingDojo {
 		History.start;
 		MFdef('historyForward').add('run_code_dojo', { |code, result|
 			// Only send the code if we are currenlty in this CodingDojo document.
-			(Document.current.quuid == syncText.textDoc.quuid
+			(Document.current === syncText.textDoc
 				and: {syncText.textDoc.quuid.notNil}
 			).if {
 				"send code to run everywhere ...".postln;
-				oscrouter.sendMsg('/codingdojo/run_code', username, code);
+				oscrouter.sendMsg('/codingdojo/run_code', userName, code);
 			};
 		});
 
@@ -187,10 +195,10 @@ CodingDojo {
 	}
 
 	updateTurn {
-		(pilot == username).if {
+		(pilot == userName).if {
 			myStatus = \pilot;
 		} {
-			(copilot == username).if {
+			(copilot == userName).if {
 				myStatus = \copilot;
 			} {
 				myStatus = \audience;
