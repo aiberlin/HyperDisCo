@@ -4,7 +4,7 @@ OSCRouterClient {
 	classvar <all;
 	classvar <groups, <groupNamesByPort;
 
-	var <serverAddr, <userName, <userPassword, <onJoined, <groupName, <groupPassword, <serverport;
+	var <userName, <groupName, <serverAddr, <userPassword, <groupPassword, <serverPort, <onJoined;
 	var <tcpRecvPort, <netAddr;
 	var <responders, <responderFuncs, <privateResponderFuncs, <privateMsgReceiver;
 	var <peerWatcher, <peers, <hasJoined = false;
@@ -23,13 +23,27 @@ OSCRouterClient {
 			groups.put(name, (name: name, serverAddr: serverAddr))
 		};
 	}
+	///// not finished yet
+	*findBy {  |userName, groupName, serverAddr, serverPort|
+		^all.select { |router|
+			router.match(userName, groupName, serverAddr, serverPort)
+		}.asArray
+	}
 
 	// if there is already a client with these specs,
 	// use that to avoid doubled login failure and confusion.
-	*new { arg serverAddr, userName, userPassword, onJoined,
-		groupName = 'oscrouter', groupPassword = 'oscrouter', serverport = 55555;
+	*new { |userName, groupName = 'oscrouter', serverAddr = "bgo.la",
+		userPassword, groupPassword = 'oscrouter',
+		serverPort = 55555, onJoined, dummy, extra, silly, argssss|
+		var found;
 
-		var found = this.findBy(userName, groupName, serverAddr, serverport);
+		userName =  userName.asSymbol;
+		groupName = groupName.asSymbol;
+		userPassword = userPassword.asSymbol;
+		groupPassword = groupPassword.asSymbol;
+		serverAddr = serverAddr.asString;
+
+		found = this.findBy(userName, groupName, serverAddr, serverPort);
 
 		case { found.size > 1 } {
 			"*** OSCRouterClient:new - multiple matching clients found, please be more specific!".postln;
@@ -39,23 +53,22 @@ OSCRouterClient {
 			"OSCRouterClient:new - using existing client with these params.".postln;
 			^found.unbubble
 		};
-		///// none found, so create it now:
-		^super.newCopyArgs(serverAddr, userName, userPassword, onJoined, groupName, groupPassword, serverport).init;
+
+		///// none found, so create it now.
+		///// newCopyArgs scrambles args for some reason,
+		///// so do it explicitly in init:
+		"*** going into init:".postln;
+		^super.newCopyArgs(userName, groupName, serverAddr,
+				userPassword, groupPassword,
+				serverPort, onJoined).init
 	}
 
-	match { |userName, groupName, serverAddr, serverport|
+	match { |userName, groupName, serverAddr, serverPort|
 		userName !? { if (this.userName != userName) { ^false } };
 		groupName !? { if (this.groupName != groupName) { ^false } };
 		serverAddr !? { if (this.serverAddr != serverAddr) { ^false } };
-		serverport !? { if (this.serverport != serverport) { ^false } };
+		serverPort !? { if (this.serverPort != serverPort) { ^false } };
 		^true
-	}
-
-	///// not finished yet
-	*findBy {  |userName, groupName, serverAddr, serverport|
-		^all.select { |router|
-			router.match(userName, groupName, serverAddr, serverport)
-		}.asArray
 	}
 
 	init {
@@ -105,7 +118,7 @@ OSCRouterClient {
 		});
 
 		thisProcess.addOSCRecvFunc(portResponder);
-		netAddr = NetAddr(serverAddr, serverport);
+		netAddr = NetAddr(serverAddr, serverPort);
 		netAddr.tryConnectTCP({
 			this.isConnected.if({
 				netAddr.sendMsg('/oscrouter/register', userName, userPassword, groupName, groupPassword, randomId);
