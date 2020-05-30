@@ -1,14 +1,14 @@
 TITLE:: CodingDojo
 summary:: Shared coding practice
-categories::Education, LiveCoding
+categories::Education, LiveCoding, PairProgramming
 related:: Classes/OSCRouterClient, Classes/SyncText
 
 DESCRIPTION::
-See link::https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.568.2621::
+From link::https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.568.2621::
 
-A Coding Dojo is a meeting where a group of program-mers gets together to learn, practice, and share experiences. This report describes the authors ’ experience of creating and running an active Coding Dojo in São Paulo, Brazil, sharing the lessons learned from the experience. The role of the Dojo in the learning process is discussed, showing how it creates an environment for fostering and sharing Agile practices such as Test-Driven Development, Refactoring and Pair Programming, among others.
+"A Coding Dojo is a meeting where a group of program-mers gets together to learn, practice, and share experiences. This report describes the authors’ experience of creating and running an active Coding Dojo in São Paulo, Brazil, sharing the lessons learned from the experience. The role of the Dojo in the learning process is discussed, showing how it creates an environment for fostering and sharing Agile practices such as Test-Driven Development, Refactoring and Pair Programming, among others."
 
-Designed and implemented by Bruno Gola.
+This class is designed and implemented by Bruno Gola, for making CodingDojo sessions by internet possible.
 
 First code examples:
 
@@ -17,12 +17,6 @@ code::
 ~myDojoID = \ada;
 ~myDojoID = \coco;
 ~myDojoID = \eve;
-
-
-// close old dojo docs if needed
-Document.allDocuments.do { |doc|
-	if (doc.title.contains("CodingDojoSession")) { doc.close }
-};
 
 // make a new CodingDojo
 ~dojo = CodingDojo(~myDojoID, ~myDojoID);
@@ -35,87 +29,90 @@ Document.allDocuments.do { |doc|
 // when all participants are ready, one person starts the session:
 ~dojo.startSession(~dojo.oscrouter.peers);
 
-// the names shown are:
-// pilot - can edit, lead writer
+// the names shown are those for the three roles in a CodingDojo:
+// pilot - can edit, writes/changes code
 // copilot - can edit, assists, discusses
 // next copilot - becomes copilot in next round
 
-// every 5 minutes, the roles rotate by one:
+// every ~dojo.turnTime, (5 minutes by default), the roles rotate by one:
 //  pilot <- copilot
 // copilot <- nextCopilot
 // nextCopilot - next in order
 
 ~dojo.rotate;
-
 ::
 
 CLASSMETHODS::
 
 METHOD:: new
-argument:: username
+create a new CodingDojo with these arguments
+(largely the same as for the OSCRouterClient)
+argument:: userName
 argument:: password
 argument:: serveraddress
 argument:: serverport
+argument:: groupName
+argument:: groupPassword
 
 
 INSTANCEMETHODS::
 
-METHOD:: disableCodeSending
+private:: init, addOSCFuncs, removeOSCFuncs
 
-METHOD:: startNewTurn
-argument:: pilot
-argument:: copilot
-argument:: next
+subsection::Instance Variables
 
-METHOD:: startTimer
-
+METHOD:: oscrouter
+an link::OSCRouterClient:: by which the participants are connected.
 METHOD:: syncText
+the link::SyncText:: object for sharing the written code.
+METHOD:: win
+the window showing the timer and roles
+METHOD:: uv
+the UserView showing the timer and role
+METHOD:: timer
+a skipjack used for coding round timing.
+
+subsection::Session Interface
 
 METHOD:: startSession
+start a new session with an ordered list of participants.
+These names must be used in the oscrouter.
 argument:: participants_order
 
-METHOD:: win
+METHOD:: pilot
+METHOD:: copilot
+METHOD:: nextCopilot
+the names of the participants currently in these roles
+METHOD:: myStatus
+my role in the current round
+METHOD:: order
+the current order
+
+METHOD:: rotate
+rotate to the next pilot/copilot/next triple,
+and start timer
+
+METHOD:: startTimer
+METHOD:: resetTimer
+start and reset the timer.
+
+subsection::Internal Methods
+These usually need not be used  by hand.
 
 METHOD:: setupUserView
 
-METHOD:: uv
-
-METHOD:: nextCopilot
-
-METHOD:: copilot
-
-METHOD:: removeOSCFuncs
-
-METHOD:: init
-
 METHOD:: enableCodeSending
-
-METHOD:: myStatus
-
-METHOD:: updateTurn
-
-METHOD:: oscrouter
-
-METHOD:: addOSCFuncs
-
-METHOD:: timer
-
-METHOD:: order
+METHOD:: disableCodeSending
+turn codeSending for CodingDojoSession_<name> window on and off.
 
 METHOD:: newTurn
 argument:: newPilot
 argument:: newCopilot
 argument:: newNext
 
-METHOD:: resetTimer
+METHOD:: startNewTurn
+argument:: pilot
+argument:: copilot
+argument:: next
 
-METHOD:: rotate
-
-METHOD:: pilot
-
-
-EXAMPLES::
-
-code::
-_some_example_code_
-::
+METHOD:: updateTurn
