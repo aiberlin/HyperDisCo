@@ -1,4 +1,3 @@
-
 OSCRouterClient {
 
 	classvar <all;
@@ -209,7 +208,7 @@ OSCRouterClient {
 		hasJoined = false;
 		"closing".postln;
 		peers.remove(userName);
-		netAddr.isConnected.if({netAddr.tryDisconnectTCP});
+		this.isConnected.if({netAddr.tryDisconnectTCP});
 		keys = responders.keys;
 		keys.do({arg id; this.removeResp(id)});
 		responders = ();
