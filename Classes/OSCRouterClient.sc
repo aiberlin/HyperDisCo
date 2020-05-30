@@ -19,7 +19,7 @@ OSCRouterClient {
 		groupNamesByPort.put(recvPort, name);
 
 		if (groups[name].isNil) {
-			"% new group: % recvPort: %.\n".postf(name.cs, recvPort, serverAddr);
+			"% new group: % recvPort: %.\n".postf(serverAddr, name.cs, recvPort);
 			groups.put(name, (name: name, serverAddr: serverAddr))
 		};
 	}
