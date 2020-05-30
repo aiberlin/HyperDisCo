@@ -1,21 +1,29 @@
 CodingDojo {
-	var <username, <password, <serveraddress, <serverport;
+	var <username, <userPassword, <serveraddress, <serverport;
 	var <oscrouter, <syncText;
 	var <>turnTime = 300, <remainTime, <timer;
 	var <pilot, <copilot, <nextCopilot, <myStatus, <order;
 	var <win, <uv;
 
-	*new { arg username, password, serveraddress = "bgo.la", serverport = 55555;
-		^super.newCopyArgs(username.asSymbol, password.asSymbol, serveraddress.asString, serverport).init;
+	*new { arg username, userPassword, serveraddress = "bgo.la", serverport = 55555,
+		groupName = \codingDojo, groupPassword = \codingDojo;
+		^super.newCopyArgs(username.asSymbol, userPassword.asSymbol,
+			serveraddress.asString, serverport)
+		.init(groupName.asSymbol, groupPassword.asSymbol);
 	}
 
-	init {
+	init { |groupName, groupPassword|
 		this.initTimer;
 		this.initRoles;
 
-		oscrouter = OSCRouterClient(serveraddress, username, password, serverport: serverport);
+		oscrouter = OSCRouterClient(serveraddress, username, groupPassword,
+			groupName, groupPassword, serverport: serverport);
 		oscrouter.join({ this.initOnJoined });
 	}
+
+	groupName { ^oscrouter.groupName }
+
+	groupPassword { ^oscrouter.groupPassword }
 
 	initRoles {
 		pilot = '';
