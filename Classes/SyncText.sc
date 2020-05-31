@@ -7,6 +7,8 @@ SyncText {
 	var <currText, <lastSent, <lastReceived, <incomingVersions;
 	var <recvFunc, <requestFunc;
 	var <textDoc, <>synced = false, <keyDownSyncFunc, <locked = false;
+	var <prevText;
+
 	// while Document has no full unicode support,
 	/// replace all non-ascii chars in place here:
 	*fixString { |string, replaceChar = $_|
@@ -140,8 +142,7 @@ SyncText {
 				} { currText.isNil } {
 					"%: not sending text % when currText is nil.\n".postf(this, textID.cs);
 				} {
-					"%: sending text % requested by %\n".postf(this, textID.cs, senderID.cs);
-					// send only to requesting name?
+					"%: sending requested text % only to %\n".postf(this, textID.cs, senderID.cs);
 					this.sendSyncText(senderID);
 				};
 			};
@@ -199,16 +200,32 @@ SyncText {
 	}
 
 	makeKeyDownFunc {
-		keyDownSyncFunc = MFunc().add(\sendSync, { |doc, char|
-			// filter other chars as well?
-			// how to trigger sync when pasting?
-			if (char.ascii > 0) {
+		keyDownSyncFunc = keyDownSyncFunc ?? { MFunc() };
+
+		keyDownSyncFunc.add(\sendSync, { |doc, char, mods, unicode, keycode, key|
+			var newText = doc.string;
+			var textChanged = (newText == prevText).not;
+			var wasFixed;
+
+			// [doc, char, mods, unicode, keycode, key].postcs;
+
+			if (textChanged) {
+				// "textChanged".postln;
+				// while Document has no full unicode support, replace non-asciis:
+				wasFixed = SyncText.fixString(newText);
+				if (wasFixed) {
+					"fixed text, resetting textDoc.".postln;
+					doc.text = newText;
+				};
 				if (this.synced) {
-					currText = doc.text;
+					currText = newText;
+					//	"send newText".postln;
 					this.sendSyncText;
-				}
+				};
+				prevText = newText;
 			};
 		});
+
 		keyDownSyncFunc.disable(\sendSync);
 	}
 
