@@ -7,6 +7,20 @@ SyncText {
 	var <currText, <lastSent, <lastReceived, <incomingVersions;
 	var <recvFunc, <requestFunc;
 	var <textDoc, <>synced = false, <keyDownSyncFunc, <locked = false;
+	// while Document has no full unicode support,
+	/// replace all non-ascii chars in place here:
+	*fixString { |string, replaceChar = $_|
+		var badCount = 0;
+		// fix in-place:
+		string.do { |char, i|
+			if (char.ascii < 0) {
+				string[i] = replaceChar;
+				badCount = badCount + 1;
+			}
+		};
+		// return flag if any chars were changed
+		^badCount > 0;
+	}
 
 	*initClass {
 		all = ();
