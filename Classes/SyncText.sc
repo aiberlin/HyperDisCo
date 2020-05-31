@@ -77,15 +77,33 @@ SyncText {
 	unlock { locked = false; textDoc !? { textDoc.editable = locked.not } }
 
 	setCurr { |newText|
+		textDoc !? { this.setDocText(newText) };
 		currText = newText;
-		textDoc !? { this.setDocText };
 	}
 
-	setDocText {
-		textDoc.text = currText;
-		// other sync stuff to do here
-		// - keep and restore current cursor pos?
-		// - what else?
+	setDocText { |newText|
+		thisMethod.postln;
+		textDoc.text = newText;
+
+		if (currText.notNil) {
+			// get current text selectedRange,
+			var currStart = textDoc.selectionStart;
+			var currSelSize = textDoc.selectionSize;
+			var sizeDiff = newText.size - currText.size;
+			// find out whether change was before or after local selectionStart:
+			var currTextStart = currText.copyFromStart(currStart - 1);
+			var newTextStart  =  newText.copyFromStart(currStart - 1);
+			// if after, just reset, if before, shift by length change
+			if (currTextStart == newTextStart) {
+				// change is after selectionStart, selection can stay
+			} {
+				// shift by tex length difference
+				currStart = currStart + sizeDiff;
+			};
+
+			// and restore it after text update
+			textDoc.selectRange(currStart, currSelSize);
+		}
 	}
 
 	makeOSCFuncs {
