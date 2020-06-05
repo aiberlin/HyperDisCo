@@ -16,7 +16,7 @@ First code examples:
 code::
 (
 // make a client that joins the default group on bgola's server:
-~ex1 = OSCRouterClient("bgo.la", \ex1, \ex1);
+~ex1 = OSCRouterClient(\ex1, serverAddr: "bgo.la", userPassword: \ex1);
 //// add a responder before joining
 ~ex1.addResp(\test, { |msg| [~ex1.userName, msg].postcs });
 ~ex1.join;
@@ -25,7 +25,7 @@ code::
 OSCRouterClient.groups;
 
 //// add a second client with a different name:
-~ex2  = OSCRouterClient("bgo.la", \ex2a);
+~ex2  = OSCRouterClient(\ex2a, serverAddr: "bgo.la");
 // add responder after joining
 ~ex2.join({ ~ex2.addResp(\test, { |msg| [~ex2.userName, msg].postcs }) });
 
@@ -59,23 +59,23 @@ This is used to prevent multiple identical clients.
 argument:: serverAddr
 argument:: userName
 argument:: groupName
-
+    
 METHOD:: new
 create a new client with:
-argument:: serverAddr
-the address of the server where tcposcrouter runs
 argument:: userName
 the userName with which to login
-argument:: userPassword
-userPassword for that userName
-argument:: onJoined
-function to do when joined
 argument:: groupName
 name of the group to join. default is 'oscrouter'
+argument:: serverAddr
+the address of the server where tcposcrouter runs
+argument:: userPassword
+userPassword for that userName
 argument:: groupPassword
 password for the group to join. default is 'oscrouter'
 argument:: serverport
 optional: on which port to log into the server
+argument:: onJoined
+function to do when joined
 
 METHOD:: groups
 Dictionary of known groups
