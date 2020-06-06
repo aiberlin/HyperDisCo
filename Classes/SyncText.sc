@@ -5,7 +5,6 @@ SyncText {
 
 	var <textID, <relayAddr, <userID, <docLocalID;
 	var <currText, <lastSent, <lastReceived, <incomingVersions;
-	var <recvFunc, <requestFunc;
 	var <textDoc, <>synced = false, <keyDownSyncFunc, <locked = false;
 	var <prevText;
 
@@ -31,21 +30,22 @@ SyncText {
 	}
 
 	*new { |textID = \syncText, userID, relayAddr|
-		var id = (userID ?? { "whoami".unixCmdGetStdOut.drop(-1) }).asSymbol;
-		var foundByName = all.detect { |st| st.textID == textID };
+		var userName = try { relayAddr.userName };
+		var id = (userName ?? userID ?? { "whoami".unixCmdGetStdOut.drop(-1) }).asSymbol;
+		//var foundByName = all.detect { |st| st.textID == textID };
 		var docLocalID = textID;
-		if (foundByName.notNil) {
+		/*if (foundByName.notNil) {
 			^foundByName
-		};
+		};*/
 		// try with localID added:
-		if (userID.notNil) {
-			docLocalID = (textID ++ '_' ++ userID).asSymbol;
+		if (id.notNil) {
+			docLocalID = (textID ++ '_' ++ id).asSymbol;
 			if (all[docLocalID].notNil) {
 				^all[docLocalID]
 			}
 		};
 		// "// making new SyncText".postln;
-		^super.newCopyArgs(textID, relayAddr, userID, docLocalID).init
+		^super.newCopyArgs(textID, relayAddr, id, docLocalID).init
 	}
 
 	storeArgs { ^[textID] }
@@ -54,7 +54,8 @@ SyncText {
 	init {
 		incomingVersions = ();
 		// put them in twice?
-		all.put(textID, this);
+		// we shouldn't need to add it to all without the localID
+		// all.put(textID, this);
 		all.put(docLocalID, this);
 		this.makeKeyDownFunc;
 
@@ -71,12 +72,17 @@ SyncText {
 	disableSend { keyDownSyncFunc.disable(\sendSync) }
 	sendEnabled { ^keyDownSyncFunc.activeNames.includes(\sendSync) }
 
-	enableRecv { recvFunc.enable }
-	disableRecv { recvFunc.disable(\sendSync) }
-	recvEnabled { ^recvFunc.enabled }
-
 	lock { locked = true; textDoc !? { textDoc.editable = locked.not } }
 	unlock { locked = false; textDoc !? { textDoc.editable = locked.not } }
+
+	syncTo { |name|
+		var newText = incomingVersions[name];
+		if (newText.isNil) {
+			"SyncText: no incoming text for %!\n".postf(name.cs);
+		} {
+			this.setCurr(newText)
+		}
+	}
 
 	setCurr { |newText|
 		textDoc !? { this.setDocText(newText) };
@@ -110,7 +116,7 @@ SyncText {
 
 	makeOSCFuncs {
 
-		recvFunc = OSCFunc({ |msg|
+		relayAddr.addResp(\syncText, { |msg|
 			var inTextID = msg[1];
 			var senderID = msg[2];
 			var newText = msg[3].asString;
@@ -122,7 +128,7 @@ SyncText {
 					this.setCurr(newText);
 				};
 			};
-		}, \syncText, recvPort: relayAddr.tcpRecvPort);
+		});
 
 		// requestedText comes private only to avoid flooding elsewhere
 		relayAddr.addPrivateResp(\syncText, { |senderID, msg|
@@ -133,7 +139,8 @@ SyncText {
 			incomingVersions.put(senderID, newText);
 		});
 
-		requestFunc = OSCFunc({ |msg|
+
+		relayAddr.addResp(\syncTextRequest, {|msg|
 			var inTextID = msg[1];
 			var senderID = msg[2];
 			if (inTextID == textID) {
@@ -146,11 +153,7 @@ SyncText {
 					this.sendSyncText(senderID);
 				};
 			};
-		}, \syncTextRequest, recvPort: relayAddr.tcpRecvPort);
-
-		requestFunc.permanent_(true);
-		recvFunc.permanent_(true);
-
+		});
 	}
 
 	sendSyncText { |otherName|
@@ -212,11 +215,11 @@ SyncText {
 			if (textChanged) {
 				// "textChanged".postln;
 				// while Document has no full unicode support, replace non-asciis:
-				wasFixed = SyncText.fixString(newText);
-				if (wasFixed) {
-					"fixed text, resetting textDoc.".postln;
-					doc.text = newText;
-				};
+				//wasFixed = SyncText.fixString(newText);
+				//if (wasFixed) {
+				//	"fixed text, resetting textDoc.".postln;
+				//	doc.text = newText;
+				//};
 				if (this.synced) {
 					currText = newText;
 					//	"send newText".postln;
@@ -265,7 +268,7 @@ SyncText {
 
 	saveAndCloseOldDocs {
 		var oldDocs = Document.allDocuments.select { |doc|
-			doc != textDoc and: { doc.title.contains(textID.asString) }
+			doc != textDoc and: { doc.title.contains(docLocalID.asString) }
 		};
 		oldDocs.do { |doc, i|
 			var id;
