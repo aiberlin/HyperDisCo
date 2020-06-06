@@ -206,9 +206,11 @@ CodingDojo {
 		};
 
 		((myStatus == \pilot) or: { myStatus == \copilot}).if {
+			this.enableCodeSending;
 			syncText.enableSend;
 			syncText.unlock;
 		} {
+			this.disableCodeSending;
 			syncText.disableSend;
 			syncText.lock;
 		}
