@@ -114,11 +114,6 @@ enable and disable sync-sending on currText
 METHOD:: sendEnabled
 flag whether currently sync-sending or not
 
-METHOD:: enableRecv, disableRecv
-enable and disable text sync from outside
-METHOD:: recvEnabled
-flag whether currently text-syncing from outside
-
 METHOD:: lock, unlock
 lock and unlock editing of currText on textDoc
 METHOD:: lock
@@ -131,7 +126,7 @@ subsection::mostly for internal use (and debugging)
 
 private:: init, makeOSCFuncs, makeKeyDownFunc
 private:: printOn, storeArgs
-private:: recvFunc, requestFunc, keyDownSyncFunc
+private:: keyDownSyncFunc
 
 METHOD:: incomingVersions
 different versions of the synced text as last sent from synced users.

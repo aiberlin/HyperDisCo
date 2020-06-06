@@ -32,12 +32,7 @@ SyncText {
 	*new { |textID = \syncText, userID, relayAddr|
 		var userName = try { relayAddr.userName };
 		var id = (userName ?? userID ?? { "whoami".unixCmdGetStdOut.drop(-1) }).asSymbol;
-		//var foundByName = all.detect { |st| st.textID == textID };
 		var docLocalID = textID;
-		/*if (foundByName.notNil) {
-			^foundByName
-		};*/
-		// try with localID added:
 		if (id.notNil) {
 			docLocalID = (textID ++ '_' ++ id).asSymbol;
 			if (all[docLocalID].notNil) {
@@ -53,9 +48,6 @@ SyncText {
 
 	init {
 		incomingVersions = ();
-		// put them in twice?
-		// we shouldn't need to add it to all without the localID
-		// all.put(textID, this);
 		all.put(docLocalID, this);
 		this.makeKeyDownFunc;
 
@@ -215,11 +207,11 @@ SyncText {
 			if (textChanged) {
 				// "textChanged".postln;
 				// while Document has no full unicode support, replace non-asciis:
-				//wasFixed = SyncText.fixString(newText);
-				//if (wasFixed) {
-				//	"fixed text, resetting textDoc.".postln;
-				//	doc.text = newText;
-				//};
+				wasFixed = SyncText.fixString(newText);
+				if (wasFixed) {
+					"fixed text, resetting textDoc.".postln;
+					doc.text = newText;
+				};
 				if (this.synced) {
 					currText = newText;
 					//	"send newText".postln;
