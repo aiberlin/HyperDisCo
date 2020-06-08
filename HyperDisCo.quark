@@ -7,6 +7,6 @@
   schelp: "HyperDisCo",
   license: "GPL",
   status: "experimental",
-  dependencies: ["adclib", "JITLibExtensions"],
+  dependencies: ["adclib", "JITLibExtensions", "Utopia"],
   copyright: "Bruno Gola, Alberto de Campo, Hannes Hoelzl, UdK 2020-"
 )
