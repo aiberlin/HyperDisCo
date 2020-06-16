@@ -43,7 +43,7 @@ SyncText {
 		^super.newCopyArgs(textID, relayAddr, id, docLocalID).init
 	}
 
-	storeArgs { ^[textID] }
+	storeArgs { ^[textID, userID] }
 	printOn { |stream| ^this.storeOn(stream) }
 
 	init {
@@ -82,7 +82,7 @@ SyncText {
 	}
 
 	setDocText { |newText|
-		thisMethod.postln;
+		// thisMethod.postln;
 		textDoc.text = newText;
 
 		if (currText.notNil) {
@@ -150,23 +150,31 @@ SyncText {
 
 	sendSyncText { |otherName|
 		var textSize = currText.size;
-		if (textSize > 65000) {
-			"% : currText size % too big for sending!\n".postf(this, textSize);
-			^false
-		};
+
+		"%: sendSyncText ".postf(this);
+
 		if (relayAddr.isNil) {
-			"*** SyncEditor: cannot send with no relayAddr.".postln;
+			"FAIL: cannot send without relayAddr.".postln;
 			^false
 		};
-		// how to send only to single receiver only?
+		if (textSize > 65000) {
+			"FAIL: currText size % too big for sending!\n".postf(textSize);
+			^false
+		};
+
+		"with % chars ".postf(textSize);
+
+		// send to single peer, e.g. for new login sync
 		if (otherName.notNil) {
+			"privately to %\n.".postf(otherName);
 			relayAddr.sendPrivate(otherName, \syncText, textID, userID, currText);
 		} {
 			// if no name given, send to everyone:
+			" to all.".postln;
 			relayAddr.sendMsg(\syncText, textID, userID, currText);
 		}
 	}
-	//
+
 	requestText {
 		"% : sending requestText with: msg [ 'syncTextRequest', textID: %, userID: % ]\n"
 		.postf(this, textID.cs, userID.cs);
