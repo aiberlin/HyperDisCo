@@ -13,7 +13,7 @@ SynthDef('grainXLine',
 
 /*****
 // orthodox OSC messaging style:
-s.sendMsg('/s_new', 'grainXLine', -1, 0, 0, 	\freq, 2000, \sustain, 1, \out, 0);
+s.sendMsg('/s_new', 'grainXLine', -1, 0, 0, \freq, 2000, \sustain, 1, \out, 0);
 // simpler:
 (instrument: \grainXLine).play;
 *****/

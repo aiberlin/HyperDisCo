@@ -22,7 +22,7 @@ q.origSynthDefs = q.origSynthDefs ?? { SynthDescLib.global.synthDescs.keys };
 // load other synthdef libs explicitly in startup, e.g.
 // "allesAnAlle.scd", "_FXLib.scd";
 // (~libsPath +/+ "allesAnAlle.scd").loadPaths;
-("allesAnAlle.scd").loadRelative; // load here, so all SDs count into q.synthDefs
+"allesAnAlle.scd".loadRelative; // load here, so all SDs count into q.synthDefs
 
 
 // 	AnalogDrums215 by_otophilia
@@ -457,13 +457,13 @@ SynthDef("grainFM_b",
 /// PB_UP classix Synth Defs //////////////////////////////////////////////////////////////////////////
 
 SynthDef("hatXLine",
-	{ arg out = 0, freq=8000, decay=0.0001, amp=0.5, pan = 0.0;
+	{ arg out = 0, freq=8000, sustain=0.0001, amp=0.5, pan = 0.0;
 		var window;
-		window = Env.new([ amp, 0.001 ], [ decay ], 'exponential');
+		window = Env.new([ amp, 0.001 ], [ sustain ], 'exponential');
 		OffsetOut.ar(out,
 			Pan2.ar(
 				(
-					BPF.ar(ClipNoise.ar, freq * XLine.kr(1.1, 1, decay) , 0.1)
+					BPF.ar(ClipNoise.ar, freq * XLine.kr(1.1, 1, sustain) , 0.1)
 					* 8).softclip
 				+ HPF.ar(WhiteNoise.ar, 13000)
 				, pan
@@ -471,17 +471,17 @@ SynthDef("hatXLine",
 		)
 }).add;
 /*****
-(instrument: \hatXLine, freq: rrand(2000, 12000), decay: 0.1).play;
+(instrument: \hatXLine, freq: rrand(2000, 12000), sustain: 0.1).play;
 *****/
 
 SynthDef("hatXLRev",
-	{ arg out = 0, freq=8000, decay=0.0001, amp=0.5, pan = 0.0;
+	{ arg out = 0, freq=8000, sustain=0.0001, amp=0.5, pan = 0.0;
 		var window;
-		window = Env.new([ 0.001, amp ], [ decay * 1.3 ], 'exponential');
+		window = Env.new([ 0.001, amp ], [ sustain * 1.3 ], 'exponential');
 		OffsetOut.ar(out,
 			Pan2.ar(
 				(
-					BPF.ar(ClipNoise.ar, freq * XLine.kr(1.0, 1.2, decay) , 0.1)
+					BPF.ar(ClipNoise.ar, freq * XLine.kr(1.0, 1.2, sustain) , 0.1)
 					* 7).softclip
 				+ HPF.ar(WhiteNoise.ar, 13000)
 				, pan
@@ -489,7 +489,7 @@ SynthDef("hatXLRev",
 		)
 }).add;
 /*****
-(instrument: \hatXLRev, freq: rrand(2000, 12000), decay: 0.1).play;
+(instrument: \hatXLRev, freq: rrand(2000, 12000), sustain: 0.1).play;
 *****/
 
 

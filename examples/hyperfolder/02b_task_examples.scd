@@ -34,8 +34,8 @@ Tdef(\slow2, {
 Tdef(\low3_2, {
 	100.do({ arg i;
 		(instrument: \glisson,
-			\freq: i % 5 * 200 + 500,
-			\freq2: i % 7 * 300 + 2500,
+			\freq: i % 3 * 200 + 500,
+			\freq2: i % 8 * 300 + 2500,
 			\sustain: 0.01,
 			).play;
 		// (1 / (i % 12 + 10)).wait;
@@ -45,7 +45,7 @@ Tdef(\low3_2, {
 )
 
 (
-// hochTicks
+// high Ticks
 Tdef(\highTick, {
 	100.do({ arg i;
 		(instrument: [ \grainXLine, \grainXLRev ].choose,
