@@ -149,6 +149,11 @@ SyncText {
 	}
 
 	sendSyncText { |otherName|
+		var textSize = currText.size;
+		if (textSize > 65000) {
+			"% : currText size % too big for sending!\n".postf(this, textSize);
+			^false
+		};
 		if (relayAddr.isNil) {
 			"*** SyncEditor: cannot send with no relayAddr.".postln;
 			^false
@@ -239,7 +244,9 @@ SyncText {
 			if (currText.isNil) { this.requestText };
 
 			textDoc = Document(docLocalID.asString, doctext);
-			textDoc.onClose_({ "textDoc closing.".postln; textDoc = nil });
+			textDoc.onClose_({ |doc|
+				"textDoc closing.".postln;
+				if (doc === textDoc) { textDoc = nil } });
 			textDoc.keyDownAction = keyDownSyncFunc;
 
 		};
