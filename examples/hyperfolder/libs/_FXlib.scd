@@ -198,7 +198,7 @@ SynthDef(\xf_rev, { |out=0, revTime = 3, drift = 0.5,  sustain = 10, rate = 0.5,
 
 SynthDef(\xf_krush, { |out=0,  bits = 8, downsamp = 8, sustain = 10|
 	var down;
-	var env = EnvGen.kr(Env([0,1,1,0], [0.1, 0.6, 0.3], \sin), 1, 1,0, sustain);
+	var env = EnvGen.kr(Env([0,1,1,0], [0.1, 0.6, 0.3], \sin), 1, 1,0, sustain, 2);
 	var in = In.ar(out, q.numChans);
 	in = in.round(0.5 ** bits);
 	down = Latch.ar(in, Impulse.ar(SampleRate.ir / downsamp.max(2)));
