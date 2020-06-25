@@ -149,12 +149,12 @@ SynthDef(\xf_distort, { |sustain=2, gain=3, out=0|
 	XOut.ar(out, env, mod);
 }).add;
 
-SynthDef(\xf_strobe, { |out=0, sustain=8, lofreq=4, width=0.5,  phase = 0|
+SynthDef(\xf_strobe, { |out=0, sustain=8, lofreq=4, width=0.62,  phase = 0|
 	var env = EnvGen.kr(Env([0,1,1,0], [0.1, 0.8, 0.1], \sin), 1, 1,0, sustain, 2);
 	var sig = In.ar(out, q.numChans) * LFPulse.kr(lofreq, 0, width);
 	XOut.ar(out, env, sig);
 }).add;
-SynthDef(\xf_strobeAr, { |out=0, sustain=8, lofreq=4, width=0.5,  phase = 0|
+SynthDef(\xf_strobeAr, { |out=0, sustain=8, lofreq=4, width=0.62,  phase = 0|
 	var env = EnvGen.kr(Env([0,1,1,0], [0.1, 0.8, 0.1], \sin), 1, 1,0, sustain, 2);
 	var sig = In.ar(out, q.numChans) * LFPulse.ar(lofreq, 0, width);
 	XOut.ar(out, env, sig);
