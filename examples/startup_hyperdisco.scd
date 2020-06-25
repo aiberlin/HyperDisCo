@@ -48,9 +48,11 @@ q.mypassword = 'hyperdisco';
 /// change these for your group:
 q.mygroup = '???';
 q.mygroupPassword = '???';
-// bruno gola's server - ask him first if very may users!
-q.myoscserver = "bgo.la";
+// UdK Berlin server - use your won if you have one.
+q.myoscserver = "gencomp.medienhaus.udk-berlin.de";
 
+
+///// test whether name is OK - DONT CHANGE THIS '???'!
 if (q.myID == '???') {
 	"*** please enter your nametag in your startup file!"
 	"\n... stopping here.".postln;
@@ -65,25 +67,19 @@ if (q.myID == '???') {
 //    to where you want it
 // 2. tell SC where it is (drag and drop into this text file):
 
-q.hyperfolder = "~/where/your/copy/is/hyperfolder/";
+q.hyperfolder = "~/wherever/your/copy/of/hyperfolder/";
+///// e.g. on my desktop: "~/Desktop/hyperfolder/";
+q.hyperfolder = "~/Desktop/hyperfolder/";
 
-q.hyperfolder = "~/Desktop/hyperfolder/"s;
 
 ///// e.g. on my desktop: "~/Desktop/hyperfolder/";
-
-if (q.myID == '???') {
-	"*** please enter your nametag in your startup file!"
-	"\n... stopping here.".postln;
-	this.halt;
-};
-// posts my valid name
-"***  q.myID = %; // <- My valid nameID \n\n".postf(q.myID);
-
-if (File.exists(q.hyperfolder).not) {
+if (File.exists(q.hyperfolder.standardizePath).not) {
 	"cannot find q.hyperfolder at % - "
 	"\n please move it there!".postf(q.hyperfolder);
 	this.halt;
+} {
+	"// q.hyperfolder is at %\n".postf(q.hyperfolder);
 };
 
 
-(q.hyperfolder +/+ "setup_files/00_loadMe.scd").loadPaths;
+(q.hyperfolder +/+ "setup_files/00_load*.scd").loadPaths;
