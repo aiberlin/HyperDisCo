@@ -1,58 +1,85 @@
-/*** EXAMPLE STARTUP FILE for a HyperDisCo workshop setup
+/*** HyperDisCo Quark - EXAMPLE STARTUP FILE:
 
-/////////// PART A --  startup file:
+- RECOMMENDED: USE THE  StartupFile Quark!
+- 0. install it:
+Quarks.fetchDirectory;
+Quarks.install("StartupFile");
 
-// RECOMMENDED: using StartupFILE quark
-1. open StartupFile directory:
+// 1. copy this file to
 StartupFile.openDir;
-2. Save a personal copy of this example file there
-3. Personalize it:
--- change q.myID to your preferred ID name!
--- use groupName and password for the group you want to join
--- change q.hyperFolder to where you have it.
-
+// 2. rename it to "hyperdisco.scd"; // or a name you like
+// 3. open the copied file from there
+// 4. Personalize the copied file as described below,
+// 5. then Do
 StartupFile.choose;
-// -> and choose the personal copy of this file you just made
--- recompile...
--- DONE Part A - should startup with this startup file.
--- Now do setup of the hyperfolder, see below
+// 6. and select your newly made startup file "hyperdisco.scd";
+// 7. Recompile -> setup should load now!
 
-////////
-For Plain Vanilla SC
-- 1 Go to Language Menu -> Open startup file
-- 2 Copy the text in this entire file to the new startup file
-- 3 Save the new startup file
+- To use without StartupFile:
+// 1. Go to Language Menu -> Open startup file
+// *** if that file has text in it:
+******* SAVE A BACKUP COPY OF IT somewhere, by save or file rename!
+// 2. Copy the text in this entire file to the new startup file
+// 3. Save the new startup file
 // it will be where SuperCollider finds it:
 Platform.userAppSupportDir +/+ "startup.scd";
+- 4 Recompile -> setup should load now!
 
-- 4 Personalize it:
--- change q.myID to your preferred ID name!
--- use groupName and password for the group you want to join
--- change q.hyperFolder to where you have it ?
+
+
+- ///////////// Personalize the new startup file:
+-- change q.myID to your preferred ID name!                 // VERY IMPORTANT !!
+-- change q.hyperFolder to where you have your hyperfolder. // VERY IMPORTANT !!
+
+/////// ok to leave at default when testing HyperDisCo:
+-- change q.mypassword to your preferred personal password
+-- change mygroup name to the group you want to connect to
+-- change q.myoscserver to the TCPOSCServer you want to connect to //
+-- change mygroupPassword to that group's agreed password
 
 ******/
 
-"*** Welcome to Hyper/Dis/Connectivity!"
+
+"*** Welcome to CodeExp 2020 - Hyper/Dis/Connectivity!"
 "*** loading startup file.".postln;
 
-// connecting to OSCgroup automaticall loads
-/// make a dictionary for everything useful
+/// make a dictionary for keeping things around by name:
 q = q ? ();
 
+///////////////// PERSONALIZE HERE : ////////////////////
 /// ENTER YOUR Preferred nametag/ID:
 q.myID = '???';
-/// and oscgroup password here
-/// fine to leave this as "hyperdisco" for now
+/// a personal password for yourself - don't use an important one!
 q.mypassword = 'hyperdisco';
 
-/// change these for your group:
-q.mygroup = '???';
-q.mygroupPassword = '???';
-// UdK Berlin server - use your won if you have one.
+// next, we tell the setup where the HyperDisco folder is,
+/// e.g., on macOS, you may want to put it here:
+q.hyperfolder = "~/Desktop/hyperfolder/".standardizePath;
+////// NOTE: you can get the path to a file or folder in SC easily
+/// by dropping it into a text document like this one;
+/// it will turn into a String like "/Users/adc/Desktop/hyperfolder"
+
+
+///////////// Maybe personalize these too //////////////
+// this is the server adress which connects the group:
+// "gencomp..." is the UdK Berlin server, which is fine to use for tests.
+// use your own server if you have one!
 q.myoscserver = "gencomp.medienhaus.udk-berlin.de";
 
+/// change group name and password for your group:
+// this is the default group for hyperdisco tests:
+q.mygroup = 'hyperdisco';
+q.mygroupPassword = 'hyperdisco';
 
-///// test whether name is OK - DONT CHANGE THIS '???'!
+
+
+///////////////// END of PERSONALIZATION !////////////////////
+
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+
+//////////////// DONT CHANGE ANYTHING BELOW HERE!!! //////////
 if (q.myID == '???') {
 	"*** please enter your nametag in your startup file!"
 	"\n... stopping here.".postln;
@@ -61,25 +88,23 @@ if (q.myID == '???') {
 
 "***  q.myID = %; // <- My valid nameID \n\n".postf(q.myID);
 
-
-/////////// PART B -- Set up the hyperfolder: ////////////////
-// 1. copy the workshop setup folder "hyperfolder"
-//    to where you want it
-// 2. tell SC where it is (drag and drop into this text file):
-
-q.hyperfolder = "~/wherever/your/copy/of/hyperfolder/";
-///// e.g. on my desktop: "~/Desktop/hyperfolder/";
-q.hyperfolder = "~/Desktop/hyperfolder/";
-
-
-///// e.g. on my desktop: "~/Desktop/hyperfolder/";
-if (File.exists(q.hyperfolder.standardizePath).not) {
+if (File.exists(q.hyperfolder).not) {
 	"cannot find q.hyperfolder at % - "
 	"\n please move it there!".postf(q.hyperfolder);
 	this.halt;
-} {
-	"// q.hyperfolder is at %\n".postf(q.hyperfolder);
 };
+// found it:
+"***  q.hyperfolder = %; ".postf(q.hyperfolder);
 
-
-(q.hyperfolder +/+ "setup_files/00_load*.scd").loadPaths;
+if ((Quarks.installed.any { |quark| quark.name == "HyperDisCo" })) {
+	// just continue
+	(q.hyperfolder +/+ "setup_files/00_loadMe.scd").loadPaths;
+} {
+	// if missing, add quark folder, and recompile by Hand:
+	Quarks.fetchDirectory;
+	Quarks.install("HyperDisCo");
+	Quarks.install("StartupFile");
+	LanguageConfig.store;
+	"*** Please recompile now! with:".postln;
+	"thisProcess.recompile;".postln;
+};

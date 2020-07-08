@@ -1,7 +1,7 @@
 //////// Buttons for useful functions like this:
 
 Butz.clear;
-Butz.numButz = 24;
+Butz.numButz = 26;
 Butz.style.font_(Butz.style.font.size_(14));
 try { Butz.w.close };
 Butz.makeWin;
@@ -16,6 +16,16 @@ Butz.w.layout.spacing_(2);
 // utility buttons for osc router visuals in system browser:
 Butz.add('StartupFile', { StartupFile.choose });
 Butz.add('hyperfolder', { q.hyperfolder.openOS });
+
+// Butz.add('OSCViz', { unixCmd("open https://bgo.la/wrks/oscrouter/viz.html")  });
+// Butz.add('OSCdebug', { unixCmd("open https://bgo.la/wrks/oscrouter/") });
+// Butz.add('Bgola_sound', { unixCmd("open https://bgo.la:8080/") });
+
+Butz.add('loadSynthLib', { (q.hyperfolder +/+ "libs/_SynthLib.scd").load });
+Butz.add('loadSampLib', { (q.hyperfolder +/+ "libs/_SampleLib.scd").load });
+Butz.add('loadFXLib', { (q.hyperfolder +/+ "libs/_FXLib.scd").load });
+
+Butz.add('CodingDojo', MFdef('CodingDojo'));
 
 Butz.add( \History, { WinBounds.showOrMake(\History) });
 Butz.add( \SyncText, MFdef(\SyncText) );
@@ -37,6 +47,10 @@ Butz.add('recSetup', MFdef('recSetup'));
 Butz.add('record', { s.record });
 Butz.add('stopRec', { s.stopRecording });
 
+Butz.add(\MasterFX, { WinBounds.showOrMake(\MasterFX) });
+WinBounds.addMake(\MasterFX, { MasterFX(s).gui.parent.name_(\MasterFX) });
+
+Butz.add(\load_JaMoP, MFdef(\load_JaMoP));
 
 
 // make all the simple ones here:
@@ -81,4 +95,29 @@ WinBounds.addMake(\meter, {
 	var w = s.meter.window;
 	w.name_(\meter);
 	w;
+});
+
+MFdef(\CodingDojo).add(\startDoc, {
+	var text;
+	var founddoc = Document.allDocuments. detect { |d| d.title == "Dojo_start" };
+	if (founddoc.notNil) {
+		founddoc.front
+	} {
+		text =
+		"// Join the CodingDojo with:\n"
+		"~dojo = CodingDojo(q.myID.postcs, 'udkDojo', q.myoscserver, userPassword: q.mypassword);\n\n"
+		"// add ordered list of participants:\n"
+		"~dojo.startSession();\n"
+		"// switch to next triple:\n"
+		"~dojo.rotate;\n"
+		"\n// reopen timer window if needed: \n"
+		"~dojo.showTimer;\n"
+		"\n// leave dojo:\n"
+		"~dojo.leave;\n"
+		"\n// rejoin dojo:\n"
+		"~dojo.leave;\n"
+		"~dojo.join;\n";
+
+		defer ({ Document("Dojo_start", text).front }, 0.1)
+	}
 });
