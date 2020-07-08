@@ -9,7 +9,28 @@ LIST::
 ##link::OSCRouterClient::, an interface for tcposcrouter by Bruno Gola, see link::https://github.com/bgola/tcposcrouter::.
 ##link::SyncText:: for syncing code/text documents for teaching, live coding and performance
 ##link::CodingDojo:: for holding CodingDojo sessions via internet
-## more to follow...
+##Workshop Materials:
 ::
 
 see also code:: Quark("Utopia") ::
+
+section:: HyperDisCo setup and Workshop
+
+To create an example HyperDisCo setup as used for a workshop, please do:
+
+1. Open the HyperDisCo/examples folder:
+
+code:: (Quark("HyperDisCo").localPath +/+ "examples").openOS; ::
+
+2. Copy the "hyperfolder" to a convenient place, e.g. the Desktop
+
+3. Copy the "startup_hyperdisco.scd" file to a convenient location,
+e.g. to the Desktop, or for an automatic startup file, to
+
+code:: StartupFile.filesDir.openOS; ::
+
+4. Personalize your copy of the startup_hyperdisco file by following its instructions
+
+5. Run the startup file to load a full demo setup.
+
+6. Walk through the files in your copy of the "hyperfolder" and enjoy!

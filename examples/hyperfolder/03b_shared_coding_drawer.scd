@@ -210,7 +210,7 @@ Pen.help;
 // now change the first function so it produces an error:
 MFdef(\demoDraw).add(\line0, { |uv|
 	var center = uv.bounds.center;
-	123.wrongMessage;
+	// 123.wrongMessage;
 });
 // -> stops drawing all others too!!!
 

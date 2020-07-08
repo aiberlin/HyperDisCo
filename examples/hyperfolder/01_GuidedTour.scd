@@ -10,7 +10,7 @@ i.e. you only eat well if you do the cooking
 (or if you know someone who knows someone who cooks)
 
 
-// A very friendly Music-centric tutorial:
+// A very friendly music-centric tutorial:
 "Getting-Started-With-SC".help;
 
 
