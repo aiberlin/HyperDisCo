@@ -17,9 +17,10 @@ Butz.w.layout.spacing_(2);
 Butz.add('StartupFile', { StartupFile.choose });
 Butz.add('hyperfolder', { q.hyperfolder.openOS });
 
-// Butz.add('OSCViz', { unixCmd("open https://bgo.la/wrks/oscrouter/viz.html")  });
-// Butz.add('OSCdebug', { unixCmd("open https://bgo.la/wrks/oscrouter/") });
-// Butz.add('Bgola_sound', { unixCmd("open https://bgo.la:8080/") });
+Butz.add(\postPeers, {
+	var peers = q.oscRouter.peers;
+	"*** q.oscRouter has % peers: \n%\n".postf(peers.size, peers.sort)
+});
 
 Butz.add('loadSynthLib', { (q.hyperfolder +/+ "libs/_SynthLib.scd").load });
 Butz.add('loadSampLib', { (q.hyperfolder +/+ "libs/_SampleLib.scd").load });
