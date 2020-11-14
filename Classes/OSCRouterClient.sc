@@ -2,6 +2,7 @@ OSCRouterClient {
 
 	classvar <all;
 	classvar <groups, <groupNamesByPort;
+	classvar <verbosity = 1;
 
 	var <userName, <groupName, <serverAddr, <userPassword, <groupPassword, <serverPort, <onJoined;
 	var <tcpRecvPort, <netAddr;
@@ -18,8 +19,8 @@ OSCRouterClient {
 		groupNamesByPort.put(recvPort, name);
 
 		if (groups[name].isNil) {
-			"% new group: % recvPort: %.\n".postf(serverAddr, name.cs, recvPort);
-			groups.put(name, (name: name, serverAddr: serverAddr))
+			groups.put(name, (name: name, serverAddr: serverAddr));
+			this.postAt(1, "% new group: % recvPort: %.\n".format(serverAddr, name.cs, recvPort));
 		};
 	}
 	///// not finished yet
@@ -47,19 +48,38 @@ OSCRouterClient {
 		case { found.size > 1 } {
 			"*** OSCRouterClient:new - multiple matching clients found, please be more specific!".postln;
 			found.do(_.dump);
+			"\n\n".postln;
 			^found
 		} { found.size == 1 } {
-			"OSCRouterClient:new - using existing client with these params.".postln;
+			this.postAt(1, "new - using existing client.");
 			^found.unbubble
 		};
 
 		///// none found, so create it now.
 		///// newCopyArgs scrambles args for some reason,
 		///// so do it explicitly in init:
-		"*** going into init:".postln;
+		this.postAt(1, "new : creating new instance.");
+
 		^super.newCopyArgs(userName, groupName, serverAddr,
-				userPassword, groupPassword,
-				serverPort, onJoined).init
+			userPassword, groupPassword,
+			serverPort, onJoined).init
+	}
+
+	// post OSCRouterClient with name and group
+	storeArgs { ^[userName, groupName] }
+	printOn { |stream| ^this.storeOn(stream) }
+
+	// post at debug levels:
+	// 0 is quiet, 1 is normal, 2 is detailed debug
+	*postAt { |level = 1, string|
+		if (verbosity >= level) {
+			"% : %\n".postf(this,  string);
+		}
+	}
+	postAt { |level = 1, string|
+		if (verbosity >= level) {
+			"% : %\n".postf(this,  string);
+		}
 	}
 
 	match { |userName, groupName, serverAddr, serverPort|
@@ -87,7 +107,9 @@ OSCRouterClient {
 		randomId = 999999.rand;
 
 		if (this.isConnected) {
-			// "OSCRouterClient: already connected. To reconnect, call .close first.".postln;
+			this.postAt(1,
+				"--- OSCRouterClient:join - already connected."
+				" To reconnect, call .close first.");
 			onSuccess.value;
 			^this
 		};
@@ -112,7 +134,7 @@ OSCRouterClient {
 
 		registerChecker = Task({
 			3.wait;
-			("Can't connect or auth with " ++ serverAddr).postln;
+			this.postAt(0, "could not connect or auth with " ++ serverAddr);
 			thisProcess.removeOSCRecvFunc(portResponder);
 		});
 
@@ -122,18 +144,16 @@ OSCRouterClient {
 			this.isConnected.if({
 				netAddr.sendMsg('/oscrouter/register', userName, userPassword, groupName, groupPassword, randomId);
 				registerChecker.play;
-				//// move to after hasJoined, onJoined,value
-				// onSuccess.notNil.if({onSuccess.value});
 			});
 		}, {
-			("Failed to connect to " ++ serverAddr).postln;
+			this.postAt(0, "Failed to connect to " ++ serverAddr);
 			onFailure.value;
 		});
 	}
 
 	tryToReconnect { arg msg;
 		var joined = false;
-		"Trying to reconnect...".postln;
+		this.postAt(1, "Trying to reconnect...");
 		this.close;
 		fork {
 			var retries = 5;
@@ -151,18 +171,20 @@ OSCRouterClient {
 						// Recover all responder functions and add them again to the new
 						// TCP receive port
 
-						"Reconnect success! resending message...".postln;
+						this.postAt(1, "Reconnect success! resending message...");
 						netAddr.sendMsg(*msg);
 
 					}, {
-						"Failed to reconnect, giving up...".postln;
+						this.postAt(1, "Failed to reconnect, giving up...");
 					});
 				});
 				5.wait;
 				retries = retries - 1;
 			};
-			joined.not.if { "5 attempts to reconnect failed, giving up!" };
-		};
+			joined.not.if {
+				this.postAt(1, "5 attempts to reconnect failed, giving up!");
+			};
+		}
 	}
 
 	enablePing {
@@ -196,8 +218,7 @@ OSCRouterClient {
 			});
 		}, '/oscrouter/private', recvPort: this.tcpRecvPort);
 
-		("Connected to " ++ serverAddr).postln;
-		("    receiving on port " ++ tcpRecvPort).postln;
+		this.postAt(0, "connected to % on port %".format(serverAddr, tcpRecvPort));
 		hasJoined = true;
 		CmdPeriod.add(this);
 		this.enablePing;
@@ -206,7 +227,7 @@ OSCRouterClient {
 	close {
 		var keys;
 		hasJoined = false;
-		"closing".postln;
+		this.postAt(1, "closing");
 		peers.remove(userName);
 		this.isConnected.if({netAddr.tryDisconnectTCP});
 		keys = responders.keys;
@@ -225,7 +246,7 @@ OSCRouterClient {
 		peers.find([userName]).notNil.if({
 			this.sendMsg('/oscrouter/private', userName, *args);
 		}, {
-			"sendMsgToUser: unknown user %\n".postf(userName.cs);
+			this.postAt(1, "sendMsgToUser: unknown user %\n".format(userName.cs));
 		});
 	}
 
