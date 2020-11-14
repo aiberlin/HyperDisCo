@@ -2,6 +2,7 @@ SyncText {
 	classvar <defaultText = "/* sync text via network */\n";
 	classvar <all;
 	classvar <logDir;
+	classvar <>verbosity = 1;
 
 	var <textID, <relayAddr, <userID, <docLocalID;
 	var <currText, <lastSent, <lastReceived, <incomingVersions;
@@ -45,6 +46,12 @@ SyncText {
 
 	storeArgs { ^[textID, userID] }
 	printOn { |stream| ^this.storeOn(stream) }
+	// support verbosity levels
+	postAt { |level = 1, string|
+		if (verbosity >= level) {
+			"% : %\n".postf(this,  string);
+		}
+	}
 
 	init {
 		incomingVersions = ();
@@ -52,8 +59,7 @@ SyncText {
 		this.makeKeyDownFunc;
 
 		if (relayAddr.isNil) {
-			"%: no relayAddr given?".postf(this);
-			" - cannot sync.".postln;
+			this.postAt(1, "no relayAddr given? - cannot sync.");
 		} {
 			this.makeOSCFuncs;
 			this.requestText;
@@ -70,7 +76,7 @@ SyncText {
 	syncTo { |name|
 		var newText = incomingVersions[name];
 		if (newText.isNil) {
-			"SyncText: no incoming text for %!\n".postf(name.cs);
+			this.postAt(1, "no incoming text for %!\n".format(name.cs));
 		} {
 			this.setCurr(newText)
 		}
@@ -82,7 +88,6 @@ SyncText {
 	}
 
 	setDocText { |newText|
-		// thisMethod.postln;
 		textDoc.text = newText;
 
 		if (currText.notNil) {
@@ -114,7 +119,7 @@ SyncText {
 			var newText = msg[3].asString;
 			lastReceived = newText;
 			if (textID == inTextID and: { senderID != relayAddr.userName }) {
-				"% : sync from %\n".postf(this.userID, senderID.cs);
+				this.postAt(2, " sync from %\n".postf(senderID.cs));
 				incomingVersions.put(senderID, newText);
 				if (synced) {
 					this.setCurr(newText);
@@ -126,7 +131,7 @@ SyncText {
 		relayAddr.addPrivateResp(\syncText, { |senderID, msg|
 			var inTextID = msg[1];
 			var newText = msg[3].asString;
-			"% : received private sync msg %\n".postf(this, msg.cs);
+			this.postAt(2, "received private sync msg %\n".postf(this, msg.cs));
 			lastReceived = newText;
 			incomingVersions.put(senderID, newText);
 		});
@@ -137,11 +142,12 @@ SyncText {
 			var senderID = msg[2];
 			if (inTextID == textID) {
 				case { synced.not } {
-					"%: not sending text % when not synced.\n".postf(this, textID.cs);
+					this.postAt(1, "not sending text % when not synced.\n".format(textID.cs));
 				} { currText.isNil } {
-					"%: not sending text % when currText is nil.\n".postf(this, textID.cs);
+					this.postAt(1, "not sending text % when currText is nil.\n".format(textID.cs));
 				} {
-					"%: sending requested text % only to %\n".postf(this, textID.cs, senderID.cs);
+					this.postAt(1,
+						"sending requested text % only to %\n".postf(textID.cs, senderID.cs));
 					this.sendSyncText(senderID);
 				};
 			};
@@ -151,33 +157,30 @@ SyncText {
 	sendSyncText { |otherName|
 		var textSize = currText.size;
 
-		"%: sendSyncText ".postf(this);
-
 		if (relayAddr.isNil) {
-			"FAIL: cannot send without relayAddr.".postln;
+			this.postAt(1, "sendSyncText FAILS: cannot send without relayAddr!");
 			^false
 		};
 		if (textSize > 65000) {
-			"FAIL: currText size % too big for sending!\n".postf(textSize);
+			this.postAt(1, "sendSyncText FAILS: too big for sending!");
 			^false
 		};
 
-		"with % chars ".postf(textSize);
+		this.postAt(2, "sendSyncText with % chars.".format(textSize));
 
 		// send to single peer, e.g. for new login sync
 		if (otherName.notNil) {
-			"privately to %\n.".postf(otherName);
+			this.postAt(2, "sendSyncText privately to %\n.".format(otherName));
 			relayAddr.sendPrivate(otherName, \syncText, textID, userID, currText);
 		} {
 			// if no name given, send to everyone:
-			" to all.".postln;
+			this.postAt(2, "sendSyncText to all.");
 			relayAddr.sendMsg(\syncText, textID, userID, currText);
 		}
 	}
 
 	requestText {
-		"% : sending requestText with: msg [ 'syncTextRequest', textID: %, userID: % ]\n"
-		.postf(this, textID.cs, userID.cs);
+		this.postAt(2, "requestText with textID: %, userID: %\n".format(textID.cs, userID.cs));
 		relayAddr.sendMsg(\syncTextRequest, textID, userID);
 		synced = false;
 
@@ -198,7 +201,7 @@ SyncText {
 				longest = currText;
 				longID = userID;
 			};
-			"% : keeping text from %.\n".postf(this, longID.cs);
+			this.postAt(2, "keeping text from %.\n".format(longID.cs));
 
 			this.setCurr(longest ? defaultText);
 			synced = true;
@@ -222,12 +225,11 @@ SyncText {
 				// while Document has no full unicode support, replace non-asciis:
 				wasFixed = SyncText.fixString(newText);
 				if (wasFixed) {
-					"fixed text, resetting textDoc.".postln;
+					this.postAt(2, "fixed text, resetting textDoc.");
 					doc.text = newText;
 				};
 				if (this.synced) {
 					currText = newText;
-					//	"send newText".postln;
 					this.sendSyncText;
 				};
 				prevText = newText;
@@ -248,12 +250,12 @@ SyncText {
 			// found one, turn it off, maybe even close it?
 			textDoc.keyDownAction = nil;
 		} {
-			// "// SyncText:showDoc: no valid textDoc found, so make one.".postln;
+			this.postAt(2, "showDoc: no valid textDoc found, so make one.");
 			if (currText.isNil) { this.requestText };
 
 			textDoc = Document(docLocalID.asString, doctext);
 			textDoc.onClose_({ |doc|
-				"textDoc closing.".postln;
+				this.postAt(2, "textDoc closing.");
 				if (doc === textDoc) { textDoc = nil } });
 			textDoc.keyDownAction = keyDownSyncFunc;
 
