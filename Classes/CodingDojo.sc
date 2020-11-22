@@ -171,7 +171,7 @@ CodingDojo {
 
 	rotate {
 		var nextIdx = (order.find([nextCopilot]) + 1) % order.size;
-		var next = order[nextIdx];
+		var next = order.wrapAt(nextIdx);
 		this.startNewTurn(copilot, nextCopilot, next);
 
 	}

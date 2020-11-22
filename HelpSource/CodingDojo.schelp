@@ -6,7 +6,7 @@ related:: Classes/OSCRouterClient, Classes/SyncText
 DESCRIPTION::
 From link::https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.568.2621::
 
-"A Coding Dojo is a meeting where a group of program-mers gets together to learn, practice, and share experiences. This report describes the authors’ experience of creating and running an active Coding Dojo in São Paulo, Brazil, sharing the lessons learned from the experience. The role of the Dojo in the learning process is discussed, showing how it creates an environment for fostering and sharing Agile practices such as Test-Driven Development, Refactoring and Pair Programming, among others."
+"A Coding Dojo is a meeting where a group of programmers gets together to learn, practice, and share experiences. This report describes the authors’ experience of creating and running an active Coding Dojo in São Paulo, Brazil, sharing the lessons learned from the experience. The role of the Dojo in the learning process is discussed, showing how it creates an environment for fostering and sharing Agile practices such as Test-Driven Development, Refactoring and Pair Programming, among others."
 
 This class is designed and implemented by Bruno Gola, for making CodingDojo sessions by internet possible.
 
@@ -18,8 +18,8 @@ code::
 ~myDojoID = \coco;
 ~myDojoID = \eve;
 
-// make a new CodingDojo
-~dojo = CodingDojo(~myDojoID, ~myDojoID);
+// make a new CodingDojo - use all defaults
+~dojo = CodingDojo(~myDojoID, userPassword: ~myDojoID);
 
 // wait for all participants to log in ...
 // should see a red window bottom left that says 5min
@@ -40,6 +40,7 @@ code::
 // nextCopilot - next in order
 
 ~dojo.rotate;
+
 ::
 
 CLASSMETHODS::
