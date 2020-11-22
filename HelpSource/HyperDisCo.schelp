@@ -24,13 +24,13 @@ code:: (Quark("HyperDisCo").localPath +/+ "examples").openOS; ::
 
 2. Copy the "hyperfolder" to a convenient place, e.g. the Desktop
 
-3. Copy the "startup_hyperdisco.scd" file to a convenient location,
-e.g. to the Desktop, or for an automatic startup file, to
+3. Copy the "hyperdisco_loadMe.scd" file to a convenient location,
+e.g. to the Desktop, or if you use the StartupFile quark, to
 
 code:: StartupFile.filesDir.openOS; ::
 
-4. Personalize your copy of the startup_hyperdisco file by following its instructions
+4. Personalize your copy of the hyperdisco_loadMe file by following its instructions
 
-5. Run the startup file to load a full demo setup.
+5. Run the entire file to load a full demo setup.
 
 6. Walk through the files in your copy of the "hyperfolder" and enjoy!
