@@ -120,7 +120,7 @@ CodingDojo {
 	addOSCFuncs {
 		// receive and evaluate code
 		oscrouter.addResp('/codingdojo/run_code', { |msg|
-			var who = msg.postcs[1].asString;
+			var who = msg[1].asString;
 			var code = msg[2].asString;
 
 			var isSafe = {
