@@ -119,7 +119,7 @@ SyncText {
 			var newText = msg[3].asString;
 			lastReceived = newText;
 			if (textID == inTextID and: { senderID != relayAddr.userName }) {
-				this.postAt(2, " sync from %\n".postf(senderID.cs));
+				this.postAt(2, " sync from %\n".format(senderID.cs));
 				incomingVersions.put(senderID, newText);
 				if (synced) {
 					this.setCurr(newText);
@@ -131,7 +131,7 @@ SyncText {
 		relayAddr.addPrivateResp(\syncText, { |senderID, msg|
 			var inTextID = msg[1];
 			var newText = msg[3].asString;
-			this.postAt(2, "received private sync msg %\n".postf(this, msg.cs));
+			this.postAt(2, "received private sync msg %\n".format(this, msg.cs));
 			lastReceived = newText;
 			incomingVersions.put(senderID, newText);
 		});
@@ -147,7 +147,7 @@ SyncText {
 					this.postAt(1, "not sending text % when currText is nil.\n".format(textID.cs));
 				} {
 					this.postAt(1,
-						"sending requested text % only to %\n".postf(textID.cs, senderID.cs));
+						"sending requested text % only to %\n".format(textID.cs, senderID.cs));
 					this.sendSyncText(senderID);
 				};
 			};

@@ -9,63 +9,53 @@ This is useful for shared coding practice, for learning,
 performances, and other uses.
 
 First code examples:
+
 code::
-// close old synctext docs if needed
+// if needed, close old synctext help docs to avoid confusion
 Document.allDocuments.do { |doc|
 	if (doc.title.contains("synctext_help")) { doc.close }
 };
 
-// make two OSCRouterClients that connect a shared doc on two computers
-// ON COMPUTER 1:
+// make two OSCRouterClients and SyncTexts that share their text content.
+// typically these live on two different computers,
+// but for testing, this also works on a single computer
 
-try { ~comp1.close };
-~comp1 = OSCRouterClient("bgo.la", \comp1, \comp1pw).join({
-	~tx1 = SyncText('synctext_help', ~comp1.userName, ~comp1);
-});
+// client and synctext 1
+~oscli1 = OSCRouterClient(\oscli1, 'syncTextTest', userPassword: \oscli1pw).join;
+~tx1 = SyncText('synctext_help', ~oscli1.userName, ~oscli1);
+
 ~tx1.currText;
 ~tx1.showDoc;
 
-// ON COMPUTER 2:
-try { ~comp2.close };
-~comp2 = OSCRouterClient("bgo.la", \comp2, \comp2pw).join({
-	~tx2 = SyncText('synctext_help', ~comp2.userName, ~comp2);
-});
+// (typically on computer 2:
+~oscli2 = OSCRouterClient(\oscli2, 'syncTextTest', userPassword: \oscli2pw).join;
+~tx2 = SyncText('synctext_help', ~oscli2.userName, ~oscli2);
 
 ~tx2.currText;
 ~tx2.showDoc;
 
-/// then try typing in synxtext_help document on comp1,
-// and see if the doc on comp2 updates to the same text;
+/// then type something in synxtext_help_oscli1,
+// and check that it shows up on synxtext_help_oscli2;
 // then check vice versa!
 
+// Choose how much debug/sync posting you want:
+SyncText.verbosity = 0; // silence
+SyncText.verbosity = 1; // normal posting
+SyncText.verbosity = 2; // detailed posting for debugging complex setups
 
-// contents of local synctext ~tx1:
-~tx1.dump;
+// compare contents of ~tx1 and ~tx2 - should be the same:
 ~tx1.currText.cs;
-~tx1.showDoc;
-~tx1.closeDoc;
+~tx2.currText.cs;
 
-/// test access by name:
+/// test SyncText access by name:
 SyncText.all;
 // lookup of instances works both with bare textID and textID_name:
-~tx1 === SyncText('synctext_help')
-~tx1 === SyncText('synctext_help', 'comp1')
+~tx1 === SyncText('synctext_help', 'oscli1')
 
-///// SyncText can be incomplete without textID and relayAddr,
-///// but currently no way to update them
+///// SyncText can be created incomplete without textID and relayAddr,
+///// but currently there is no way to update them
 SyncText('testNoID');
 SyncText('testID', 'user');
-
-/////////// HOW to fake two instances on same computer???
-//////////// would be useful for testing and dev ...
-///// dont have a good idea ATM (adc)
-
-~comp1B  = OSCRouterClient("bgo.la", \comp1B).join;
-~tx2 = SyncText('synctext_help2', ~comp1B.userName, ~comp1B);
-~tx2 === ~tx1;
-~tx2.dump;
-
-SyncText.all.put('synctext_help2', SyncText('synctext_help'));
 
 ::
 
