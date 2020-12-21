@@ -8,6 +8,7 @@ SyncText {
 	var <currText, <lastSent, <lastReceived, <incomingVersions;
 	var <textDoc, <>synced = false, <keyDownSyncFunc, <locked = false;
 	var <prevText;
+	var <syncKey, <requestKey;
 
 	// while Document has no full unicode support,
 	/// replace all non-ascii chars in place here:
@@ -112,8 +113,9 @@ SyncText {
 	}
 
 	makeOSCFuncs {
-
-		relayAddr.addResp(\syncText, { |msg|
+		syncKey = ("syncText_" ++ textID).asSymbol;
+		requestKey = ("syncTextRequest_" ++ textID).asSymbol;
+		relayAddr.addResp(syncKey, { |msg|
 			var inTextID = msg[1];
 			var senderID = msg[2];
 			var newText = msg[3].asString;
@@ -128,7 +130,7 @@ SyncText {
 		});
 
 		// requestedText comes private only to avoid flooding elsewhere
-		relayAddr.addPrivateResp(\syncText, { |senderID, msg|
+		relayAddr.addPrivateResp(syncKey, { |senderID, msg|
 			var inTextID = msg[1];
 			var newText = msg[3].asString;
 			this.postAt(2, "received private sync msg %\n".format(this, msg.cs));
@@ -137,7 +139,7 @@ SyncText {
 		});
 
 
-		relayAddr.addResp(\syncTextRequest, {|msg|
+		relayAddr.addResp(requestKey, {|msg|
 			var inTextID = msg[1];
 			var senderID = msg[2];
 			if (inTextID == textID) {
@@ -171,17 +173,17 @@ SyncText {
 		// send to single peer, e.g. for new login sync
 		if (otherName.notNil) {
 			this.postAt(2, "sendSyncText privately to %\n.".format(otherName));
-			relayAddr.sendPrivate(otherName, \syncText, textID, userID, currText);
+			relayAddr.sendPrivate(otherName, syncKey, textID, userID, currText);
 		} {
 			// if no name given, send to everyone:
 			this.postAt(2, "sendSyncText to all.");
-			relayAddr.sendMsg(\syncText, textID, userID, currText);
+			relayAddr.sendMsg(syncKey, textID, userID, currText);
 		}
 	}
 
 	requestText {
 		this.postAt(2, "requestText with textID: %, userID: %\n".format(textID.cs, userID.cs));
-		relayAddr.sendMsg(\syncTextRequest, textID, userID);
+		relayAddr.sendMsg(requestKey, textID, userID);
 		synced = false;
 
 		keyDownSyncFunc.disable(\sendSync);

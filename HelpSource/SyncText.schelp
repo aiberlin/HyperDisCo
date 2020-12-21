@@ -38,6 +38,15 @@ Document.allDocuments.do { |doc|
 // and check that it shows up on synxtext_help_oscli2;
 // then check vice versa!
 
+
+// make a second synctext with two users,
+// to check that it works independently of synctext_help:
+~tx3 = SyncText('synctext_help2', ~oscli1.userName, ~oscli1).showDoc;
+~tx4 = SyncText('synctext_help2', ~oscli2.userName, ~oscli2).showDoc;
+// try writing to the four docs: the 2 ..help2 docs should sync,
+// and the 2 ..help docs should still sync independently.
+
+
 // Choose how much debug/sync posting you want:
 SyncText.verbosity = 0; // silence
 SyncText.verbosity = 1; // normal posting
