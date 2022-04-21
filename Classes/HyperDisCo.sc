@@ -1,14 +1,25 @@
 HyperDisCo {
-	var <userName;
 	var <groupName;
 	var <groupPassword;
+	var <userName;
 	var <userPassword;
 	var <serverHost;
 	var <serverPort;
 
-	var <>client;
-	var <>syncText;
-	var <>document;
+	var <client;
+	var <syncText;
+
+
+	*new {|groupName, groupPassword="oscrouter", userName, userPassword="hello", serverHost="bgo.la", serverPort=55555|
+		if(userName.isNil, {
+			userName = "User%".format(1000.rand);
+			"No username provided, using out auto-generated name %".format(userName).postln;
+		});
+
+		if(groupName.isNil, {
+			groupName = "Group%".format(10000.rand);
+			"No group name provided, using auto-generated group name %".format(groupName).postln;
+		});
 
 
 	*new {|userName, groupName, groupPassword="oscrouter", userPassword="hello", serverHost="bgo.la", serverPort=55555|
@@ -16,6 +27,7 @@ HyperDisCo {
 			userName,
 			groupName,
 			groupPassword,
+			userName,
 			userPassword,
 			serverHost,
 			serverPort,
@@ -37,11 +49,10 @@ HyperDisCo {
 			userID: client.userName,
 			relayAddr: client
 		).showDoc;
-
 	}
 
 	close {
-
+		// todo
 	}
 
 
