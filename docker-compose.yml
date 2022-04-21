@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+  tcposcrouter:
+    build: tcposcrouter
+    ports:
+      - "5555:5555/tcp"
+      - "5556:5556/tcp"
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
