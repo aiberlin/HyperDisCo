@@ -4,8 +4,8 @@ services:
   tcposcrouter:
     build: tcposcrouter
     ports:
-      - "5555:5555/tcp"
-      - "5556:5556/tcp"
+      - "55550:55555/tcp"
+      - "55551:55556/tcp"
     deploy:
       restart_policy:
         condition: on-failure
