@@ -21,10 +21,9 @@ HyperDisCo {
 			"No group name provided, using auto-generated group name %".format(groupName).postln;
 		});
 
+		"Share the following command to let other users join your session\n#####\nHyperDisCo(groupName: \"%\", groupPassword: \"%\", serverHost: \"%\", serverPort: %)\n#####".format(groupName, groupPassword, serverHost, serverPort).postln;
 
-	*new {|userName, groupName, groupPassword="oscrouter", userPassword="hello", serverHost="bgo.la", serverPort=55555|
 		^super.newCopyArgs(
-			userName,
 			groupName,
 			groupPassword,
 			userName,
