@@ -13,8 +13,15 @@ Butz.w.layout.spacing_(2);
 ///// put more complex actions in as MFdef(name) or WinBounds.showOrMake(name);
 ///// and fill those functions later.
 
+
+
 // utility buttons for osc router visuals in system browser:
-Butz.add('StartupFile', { StartupFile.choose });
+{
+	var startupClass = \StartupFile.asClass;
+startupClass.notNil.if{
+	Butz.add('StartupFile', { startupClass.dialog });
+};
+}.value;
 Butz.add('hyperfolder', { q.hyperfolder.openOS });
 
 Butz.add(\postPeers, {
