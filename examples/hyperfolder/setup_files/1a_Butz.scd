@@ -19,7 +19,7 @@ Butz.w.layout.spacing_(2);
 {
 	var startupClass = \StartupFile.asClass;
 startupClass.notNil.if{
-	Butz.add('StartupFile', { startupClass.choose });
+	Butz.add('StartupFile', { startupClass.dialog });
 };
 }.value;
 Butz.add('hyperfolder', { q.hyperfolder.openOS });
