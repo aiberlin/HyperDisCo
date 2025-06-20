@@ -89,16 +89,19 @@ SyncText {
 	}
 
 	setDocText { |newText|
+		var currStart, currSelSize, sizeDiff;
+		var currTextStart, newTextStart;
+
 		textDoc.text = newText;
 
 		if (currText.notNil) {
 			// get current text selectedRange,
-			var currStart = textDoc.selectionStart;
-			var currSelSize = textDoc.selectionSize;
-			var sizeDiff = newText.size - currText.size;
+			currStart = textDoc.selectionStart;
+			currSelSize = textDoc.selectionSize;
+			sizeDiff = newText.size - currText.size;
 			// find out whether change was before or after local selectionStart:
-			var currTextStart = currText.copyFromStart(currStart - 1);
-			var newTextStart  =  newText.copyFromStart(currStart - 1);
+			currTextStart = currText.copyFromStart(currStart - 1);
+			newTextStart  =  newText.copyFromStart(currStart - 1);
 			// if after, just reset, if before, shift by length change
 			if (currTextStart == newTextStart) {
 				// change is after selectionStart, selection can stay
